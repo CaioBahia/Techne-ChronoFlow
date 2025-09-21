@@ -1,5 +1,6 @@
 package com.techne.ChronoFlow.domain.job;
 
+import com.techne.ChronoFlow.domain.job.enums.JobStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

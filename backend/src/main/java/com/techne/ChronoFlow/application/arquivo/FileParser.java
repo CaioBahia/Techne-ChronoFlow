@@ -1,6 +1,5 @@
 package com.techne.ChronoFlow.application.arquivo;
 
-import com.techne.ChronoFlow.domain.arquivo.ArquivoRetorno;
 import com.techne.ChronoFlow.domain.arquivo.model.ConteudoRetorno;
 import com.techne.ChronoFlow.domain.arquivo.model.TransacaoRetorno;
 import org.slf4j.Logger;
@@ -10,8 +9,9 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,20 +22,16 @@ public class FileParser {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("ddMMyyyy");
     private static final Logger log = LoggerFactory.getLogger(FileParser.class);
 
-    @Deprecated
-    public void parseHeader(String line, ArquivoRetorno arquivo) throws ParsingException {
-        if (line == null) {
-            throw new ParsingException("Linha de cabeçalho é nula.", null);
-        }
-        String trimmedLine = line.trim();
-        if (trimmedLine.length() < 33) {
-            throw new ParsingException(String.format("Linha de cabeçalho é muito curta. Esperado: 33, Encontrado: %d", trimmedLine.length()), null);
-        }
-        try {
-            LocalDate.parse(trimmedLine.substring(0, 8), DATE_FORMATTER);
-            LocalTime.parse(trimmedLine.substring(8, 14), DateTimeFormatter.ofPattern("HHmmss"));
-        } catch (Exception e) {
-            throw new ParsingException("Falha ao extrair dados do cabeçalho: " + e.getMessage(), e);
+    public String getEmpresaFromHeader(Path filePath) throws IOException, ParsingException {
+        try (BufferedReader reader = Files.newBufferedReader(filePath)) {
+            String headerLine = reader.readLine();
+            if (headerLine == null || headerLine.trim().isEmpty()) {
+                throw new ParsingException("Arquivo está vazio ou não contém um cabeçalho válido.", null);
+            }
+            if (headerLine.length() < 23) {
+                throw new ParsingException("Linha de cabeçalho muito curta para extrair o nome da empresa.", null);
+            }
+            return headerLine.substring(14, 23).trim().replace(' ', '_');
         }
     }
 
@@ -66,7 +62,8 @@ public class FileParser {
         }
         try {
             conteudo.setDataGeracao(LocalDate.parse(line.substring(0, 8), DATE_FORMATTER));
-            conteudo.setNomeEmpresa(line.substring(14, 23).trim());
+            String nomeEmpresa = line.substring(14, 23).trim().replace(' ', '_');
+            conteudo.setNomeEmpresa(nomeEmpresa);
             conteudo.setLote(line.substring(23, 33).trim());
         } catch (Exception e) {
             throw new ParsingException("Falha ao extrair dados do cabeçalho: " + e.getMessage(), e);

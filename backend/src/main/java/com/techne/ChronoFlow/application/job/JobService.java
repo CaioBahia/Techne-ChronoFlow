@@ -4,7 +4,7 @@ import com.techne.ChronoFlow.domain.arquivo.ArquivoRetorno;
 import com.techne.ChronoFlow.domain.arquivo.ArquivoRetornoRepository;
 import com.techne.ChronoFlow.domain.job.Job;
 import com.techne.ChronoFlow.domain.job.JobRepository;
-import com.techne.ChronoFlow.domain.job.JobStatus;
+import com.techne.ChronoFlow.domain.job.enums.JobStatus;
 import jakarta.annotation.PostConstruct;
 import org.quartz.*;
 import org.slf4j.Logger;

@@ -1,4 +1,4 @@
-package com.techne.ChronoFlow.domain.job;
+package com.techne.ChronoFlow.domain.job.enums;
 
 public enum JobStatus {
     AGENDADO,

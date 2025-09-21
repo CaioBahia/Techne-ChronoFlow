@@ -5,7 +5,7 @@ import com.techne.ChronoFlow.domain.arquivo.ArquivoRetornoRepository;
 import com.techne.ChronoFlow.domain.arquivo.model.ConteudoRetorno;
 import com.techne.ChronoFlow.domain.job.Job;
 import com.techne.ChronoFlow.domain.job.JobRepository;
-import com.techne.ChronoFlow.domain.job.JobStatus;
+import com.techne.ChronoFlow.domain.job.enums.JobStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +25,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 @Service
@@ -71,41 +72,50 @@ public class FileProcessingService {
             return;
         }
 
-        log.info("Iniciando coleta de arquivos para o Job ID: {}", jobId);
+        log.info("Iniciando coleta de arquivos para o Job ID: {} (Empresa: {})", jobId, job.getEmpresa());
         job.setStatus(JobStatus.PROCESSANDO);
         job.setUltimaExecucao(LocalDateTime.now());
         jobRepository.save(job);
 
+        AtomicInteger filesCollected = new AtomicInteger(0);
         try (Stream<Path> paths = Files.walk(sourceDirectory, 1)) {
-            List<Path> filesToProcess = paths.filter(Files::isRegularFile).toList();
-            if (filesToProcess.isEmpty()) {
-                log.warn("Nenhum arquivo encontrado na pasta de entrada. Job concluído.");
-                job.setStatus(JobStatus.CONCLUIDO);
-                jobRepository.save(job);
-                return;
-            }
-
-            filesToProcess.forEach(sourceFile -> {
+            paths.filter(Files::isRegularFile).forEach(sourceFile -> {
                 try {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy_HHmm");
-                    String formattedDateTime = LocalDateTime.now().format(formatter);
-                    String originalFileName = sourceFile.getFileName().toString();
-                    String tempFileName = formattedDateTime + "_job_" + jobId + "_" + originalFileName;
+                    String empresaDoArquivo = fileParser.getEmpresaFromHeader(sourceFile);
+                    if (job.getEmpresa().name().equalsIgnoreCase(empresaDoArquivo)) {
+                        log.info("Arquivo {} corresponde à empresa do Job {}. Coletando.", sourceFile.getFileName(), jobId);
 
-                    Path pendingFile = pendingDirectory.resolve(tempFileName);
-                    Files.move(sourceFile, pendingFile, StandardCopyOption.REPLACE_EXISTING);
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy_HHmm");
+                        String formattedDateTime = LocalDateTime.now().format(formatter);
+                        String originalFileName = sourceFile.getFileName().toString();
+                        String tempFileName = formattedDateTime + "_job_" + jobId + "_" + originalFileName;
 
-                    ArquivoRetorno arquivoRetorno = new ArquivoRetorno();
-                    arquivoRetorno.setJob(job);
-                    arquivoRetorno.setNomeArquivo(tempFileName);
-                    arquivoRetorno.setDataProcessamento(LocalDateTime.now());
-                    arquivoRetorno.setStatus("PENDENTE");
-                    arquivoRetornoRepository.save(arquivoRetorno);
-                    log.info("Arquivo {} movido para pendentes como {} e registrado com status PENDENTE.", originalFileName, tempFileName);
-                } catch (IOException e) {
-                    log.error("Erro ao mover ou registrar o arquivo {}: {}", sourceFile.getFileName(), e.getMessage());
+                        Path pendingFile = pendingDirectory.resolve(tempFileName);
+                        Files.move(sourceFile, pendingFile, StandardCopyOption.REPLACE_EXISTING);
+
+                        ArquivoRetorno arquivoRetorno = new ArquivoRetorno();
+                        arquivoRetorno.setJob(job);
+                        arquivoRetorno.setNomeArquivo(tempFileName);
+                        arquivoRetorno.setDataProcessamento(LocalDateTime.now());
+                        arquivoRetorno.setStatus("PENDENTE");
+                        arquivoRetornoRepository.save(arquivoRetorno);
+
+                        filesCollected.incrementAndGet();
+                        log.info("Arquivo {} movido para pendentes como {} e registrado com status PENDENTE.", originalFileName, tempFileName);
+                    } else {
+                        log.debug("Arquivo {} não pertence à empresa do Job {}. Ignorando.", sourceFile.getFileName(), jobId);
+                    }
+                } catch (IOException | ParsingException e) {
+                    log.error("Erro ao ler o cabeçalho do arquivo {}: {}. O arquivo será ignorado.", sourceFile.getFileName(), e.getMessage());
                 }
             });
+
+            if (filesCollected.get() == 0) {
+                log.warn("Nenhum arquivo encontrado para a empresa {} na pasta de entrada. Job concluído.", job.getEmpresa());
+                job.setStatus(JobStatus.CONCLUIDO);
+                jobRepository.save(job);
+            }
+
         } catch (IOException e) {
             log.error("Erro crítico ao ler o diretório de origem {}: {}", sourceDirectory, e.getMessage());
             job.setStatus(JobStatus.FALHA);
@@ -151,7 +161,7 @@ public class FileProcessingService {
 
             ConteudoRetorno conteudo = arquivo.getConteudo();
             if (conteudo != null && conteudo.getNomeEmpresa() != null && !conteudo.getNomeEmpresa().isEmpty()) {
-                String nomeEmpresa = conteudo.getNomeEmpresa().replaceAll("\s+", "_");
+                String nomeEmpresa = conteudo.getNomeEmpresa().replaceAll("\\s+", "_");
                 finalFileName = nomeEmpresa + "_" + tempFileName;
                 arquivo.setNomeArquivo(finalFileName);
             }
@@ -190,9 +200,8 @@ public class FileProcessingService {
         } catch (IOException e) {
             throw new IOException("Erro de I/O ao ler o arquivo " + sourcePath.getFileName() + ": " + e.getMessage(), e);
         } catch (ParsingException e) {
-            // Log the parsing error with more details if possible
             log.error("Erro de parsing no arquivo {}: {}", sourcePath.getFileName(), e.getMessage());
-            throw e; // Re-throw to be handled by processSingleFile
+            throw e;
         }
     }
 
