@@ -66,8 +66,8 @@ public class FileParser {
         }
         try {
             conteudo.setDataGeracao(LocalDate.parse(line.substring(0, 8), DATE_FORMATTER));
-            conteudo.setNomeBanco(line.substring(14, 23).trim());
-            conteudo.setCodigoConvenio(line.substring(23, 33).trim());
+            conteudo.setNomeEmpresa(line.substring(14, 23).trim());
+            conteudo.setLote(line.substring(23, 33).trim());
         } catch (Exception e) {
             throw new ParsingException("Falha ao extrair dados do cabeçalho: " + e.getMessage(), e);
         }
