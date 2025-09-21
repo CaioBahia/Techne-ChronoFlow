@@ -1,7 +1,6 @@
 package com.techne.ChronoFlow.infrastructure.controller;
 
-import com.techne.ChronoFlow.application.JobService;
-import com.techne.ChronoFlow.domain.job.Job;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +10,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/jobs")
 public class JobController {
-
     private final JobService jobService;
 
     public JobController(JobService jobService) {
@@ -36,6 +34,13 @@ public class JobController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/{id}/arquivos")
+    public ResponseEntity<List<ArquivoRetorno>> getArquivosByJobId(@PathVariable Long id) {
+        return jobService.getArquivosByJobId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Job> updateJob(@PathVariable Long id, @RequestBody Job jobDetails) {
         try {
@@ -51,4 +56,7 @@ public class JobController {
         jobService.deleteJob(id);
         return ResponseEntity.noContent().build();
     }
+
+
+
 }
