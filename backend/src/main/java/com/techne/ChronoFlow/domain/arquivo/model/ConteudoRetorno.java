@@ -5,8 +5,8 @@ import java.util.List;
 
 public class ConteudoRetorno {
     // --- Dados do Cabeçalho ---
-    private String nomeBanco;
-    private String codigoConvenio;
+    private String nomeEmpresa;
+    private String lote;
     private LocalDate dataGeracao;
 
     // --- Dados das Transações ---
@@ -17,20 +17,20 @@ public class ConteudoRetorno {
 
     // Getters e Setters
 
-    public String getNomeBanco() {
-        return nomeBanco;
+    public String getNomeEmpresa() {
+        return nomeEmpresa;
     }
 
-    public void setNomeBanco(String nomeBanco) {
-        this.nomeBanco = nomeBanco;
+    public void setNomeEmpresa(String nomeEmpresa) {
+        this.nomeEmpresa = nomeEmpresa;
     }
 
-    public String getCodigoConvenio() {
-        return codigoConvenio;
+    public String getLote() {
+        return lote;
     }
 
-    public void setCodigoConvenio(String codigoConvenio) {
-        this.codigoConvenio = codigoConvenio;
+    public void setLote(String lote) {
+        this.lote = lote;
     }
 
     public LocalDate getDataGeracao() {

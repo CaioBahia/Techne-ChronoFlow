@@ -22,11 +22,6 @@ public class FileParser {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("ddMMyyyy");
     private static final Logger log = LoggerFactory.getLogger(FileParser.class);
 
-    /**
-     * This method is kept for now to avoid breaking potential other usages,
-     * but the main parsing logic is now in the {@link #parse(BufferedReader)} method.
-     * @deprecated Use {@link #parse(BufferedReader)} instead.
-     */
     @Deprecated
     public void parseHeader(String line, ArquivoRetorno arquivo) throws ParsingException {
         if (line == null) {
