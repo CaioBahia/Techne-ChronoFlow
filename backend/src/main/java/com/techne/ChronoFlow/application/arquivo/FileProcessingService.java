@@ -2,6 +2,7 @@ package com.techne.ChronoFlow.application.arquivo;
 
 import com.techne.ChronoFlow.domain.arquivo.ArquivoRetorno;
 import com.techne.ChronoFlow.domain.arquivo.ArquivoRetornoRepository;
+import com.techne.ChronoFlow.domain.arquivo.model.ConteudoRetorno;
 import com.techne.ChronoFlow.domain.job.Job;
 import com.techne.ChronoFlow.domain.job.JobRepository;
 import com.techne.ChronoFlow.domain.job.JobStatus;
@@ -129,7 +130,9 @@ public class FileProcessingService {
         Path sourcePath = pendingDirectory.resolve(arquivo.getNomeArquivo());
         if (!Files.exists(sourcePath)) {
             arquivo.setStatus("ERRO");
-            arquivo.setConteudo("Falha: Arquivo físico não foi encontrado em 'pendentes'.");
+            ConteudoRetorno conteudo = new ConteudoRetorno();
+            conteudo.setErro("Falha: Arquivo físico não foi encontrado em 'pendentes'.");
+            arquivo.setConteudo(conteudo);
             arquivoRetornoRepository.save(arquivo);
             log.error("Arquivo {} não encontrado na pasta de pendentes. Marcado como ERRO.", arquivo.getNomeArquivo());
             return;
@@ -142,6 +145,9 @@ public class FileProcessingService {
             log.info("Leitura do arquivo {} concluída com sucesso.", arquivo.getNomeArquivo());
         } catch (IOException | ParsingException e) {
             finalStatus = "ERRO";
+            ConteudoRetorno conteudo = new ConteudoRetorno();
+            conteudo.setErro("Falha ao ler e processar o arquivo: " + e.getMessage());
+            arquivo.setConteudo(conteudo);
             log.error("Falha ao ler e processar o arquivo {}. Causa: {}", arquivo.getNomeArquivo(), e.getMessage());
         }
 
@@ -164,26 +170,15 @@ public class FileProcessingService {
     }
 
     private void readFileAndPopulateContent(ArquivoRetorno arquivo, Path sourcePath) throws IOException, ParsingException {
-        StringBuilder fileContentBuilder = new StringBuilder();
         try (BufferedReader reader = Files.newBufferedReader(sourcePath)) {
-            String line;
-            int lineNumber = 0;
-            while ((line = reader.readLine()) != null) {
-                lineNumber++;
-                fileContentBuilder.append(line).append(System.lineSeparator());
-                if (line.trim().isEmpty()) continue;
-
-                try {
-                    if (lineNumber == 1) {
-                        fileParser.parseHeader(line, arquivo);
-                    }
-                } catch (ParsingException e) {
-                    throw new ParsingException("Erro na linha " + lineNumber + ": " + e.getMessage(), e);
-                }
-            }
-            arquivo.setConteudo(fileContentBuilder.toString());
+            ConteudoRetorno conteudo = fileParser.parse(reader);
+            arquivo.setConteudo(conteudo);
         } catch (IOException e) {
             throw new IOException("Erro de I/O ao ler o arquivo " + sourcePath.getFileName() + ": " + e.getMessage(), e);
+        } catch (ParsingException e) {
+            // Log the parsing error with more details if possible
+            log.error("Erro de parsing no arquivo {}: {}", sourcePath.getFileName(), e.getMessage());
+            throw e; // Re-throw to be handled by processSingleFile
         }
     }
 

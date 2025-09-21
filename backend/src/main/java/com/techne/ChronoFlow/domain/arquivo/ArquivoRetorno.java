@@ -1,6 +1,8 @@
 package com.techne.ChronoFlow.domain.arquivo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.techne.ChronoFlow.domain.arquivo.converter.ConteudoRetornoConverter;
+import com.techne.ChronoFlow.domain.arquivo.model.ConteudoRetorno;
 import com.techne.ChronoFlow.domain.job.Job;
 import jakarta.persistence.*;
 
@@ -23,8 +25,9 @@ public class ArquivoRetorno {
     private String nomeArquivo;
 
     @Lob
+    @Convert(converter = ConteudoRetornoConverter.class)
     @Column(columnDefinition = "TEXT")
-    private String conteudo;
+    private ConteudoRetorno conteudo;
 
     @Column(nullable = false)
     private LocalDateTime dataProcessamento;
@@ -58,11 +61,11 @@ public class ArquivoRetorno {
         this.nomeArquivo = nomeArquivo;
     }
 
-    public String getConteudo() {
+    public ConteudoRetorno getConteudo() {
         return conteudo;
     }
 
-    public void setConteudo(String conteudo) {
+    public void setConteudo(ConteudoRetorno conteudo) {
         this.conteudo = conteudo;
     }
 

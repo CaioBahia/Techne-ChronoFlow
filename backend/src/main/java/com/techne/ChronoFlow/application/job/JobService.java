@@ -30,29 +30,29 @@ public class JobService {
         this.scheduler = scheduler;
     }
 
-    @PostConstruct
-    @Transactional
-    public void initializeAndScheduleJobs() {
-        // Lógica para garantir que um job padrão exista se nenhum job for encontrado.
-        // Isso evita a criação de jobs duplicados a cada reinicialização.
-        if (jobRepository.count() == 0) {
-            log.info("Nenhum job encontrado no banco de dados. Criando um job padrão.");
-            Job defaultJob = new Job();
-            defaultJob.setNome("Processamento de Arquivos de Retorno");
-            // Roda a cada 60 segundos.
-            defaultJob.setCronExpression("0 0/1 * * * ?");
-            defaultJob.setStatus(JobStatus.AGENDADO);
-            jobRepository.save(defaultJob);
-            log.info("Job padrão criado com sucesso.");
-        } else {
-            log.info("Jobs existentes encontrados. O reagendamento será feito a seguir.");
-        }
-
-        // Reagenda todos os jobs que estão no banco de dados.
-        log.info("Iniciando o agendamento de todos os jobs existentes...");
-        jobRepository.findAll().forEach(this::scheduleJob);
-        log.info("Agendamento de jobs concluído.");
-    }
+//    @PostConstruct
+//    @Transactional
+//    public void initializeAndScheduleJobs() {
+//        // Lógica para garantir que um job padrão exista se nenhum job for encontrado.
+//        // Isso evita a criação de jobs duplicados a cada reinicialização.
+//        if (jobRepository.count() == 0) {
+//            log.info("Nenhum job encontrado no banco de dados. Criando um job padrão.");
+//            Job defaultJob = new Job();
+//            defaultJob.setNome("Processamento de Arquivos de Retorno");
+//            // Roda a cada 60 segundos.
+//            defaultJob.setCronExpression("0 0/1 * * * ?");
+//            defaultJob.setStatus(JobStatus.AGENDADO);
+//            jobRepository.save(defaultJob);
+//            log.info("Job padrão criado com sucesso.");
+//        } else {
+//            log.info("Jobs existentes encontrados. O reagendamento será feito a seguir.");
+//        }
+//
+//        // Reagenda todos os jobs que estão no banco de dados.
+//        log.info("Iniciando o agendamento de todos os jobs existentes...");
+//        jobRepository.findAll().forEach(this::scheduleJob);
+//        log.info("Agendamento de jobs concluído.");
+//    }
 
     @Transactional
     public Job createJob(Job job) {
