@@ -23,8 +23,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service
@@ -87,17 +87,21 @@ public class FileProcessingService {
 
             filesToProcess.forEach(sourceFile -> {
                 try {
-                    String newFileName = "job-" + jobId + "_" + UUID.randomUUID() + "_" + sourceFile.getFileName().toString();
-                    Path pendingFile = pendingDirectory.resolve(newFileName);
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy_HHmm");
+                    String formattedDateTime = LocalDateTime.now().format(formatter);
+                    String originalFileName = sourceFile.getFileName().toString();
+                    String tempFileName = formattedDateTime + "_job_" + jobId + "_" + originalFileName;
+
+                    Path pendingFile = pendingDirectory.resolve(tempFileName);
                     Files.move(sourceFile, pendingFile, StandardCopyOption.REPLACE_EXISTING);
 
                     ArquivoRetorno arquivoRetorno = new ArquivoRetorno();
                     arquivoRetorno.setJob(job);
-                    arquivoRetorno.setNomeArquivo(newFileName);
+                    arquivoRetorno.setNomeArquivo(tempFileName);
                     arquivoRetorno.setDataProcessamento(LocalDateTime.now());
                     arquivoRetorno.setStatus("PENDENTE");
                     arquivoRetornoRepository.save(arquivoRetorno);
-                    log.info("Arquivo {} movido para pendentes e registrado com status PENDENTE.", sourceFile.getFileName());
+                    log.info("Arquivo {} movido para pendentes como {} e registrado com status PENDENTE.", originalFileName, tempFileName);
                 } catch (IOException e) {
                     log.error("Erro ao mover ou registrar o arquivo {}: {}", sourceFile.getFileName(), e.getMessage());
                 }
@@ -127,43 +131,53 @@ public class FileProcessingService {
         ArquivoRetorno arquivo = arquivoRetornoRepository.findById(arquivoRetornoId)
                 .orElseThrow(() -> new IllegalStateException("ArquivoRetorno não encontrado: " + arquivoRetornoId));
 
-        Path sourcePath = pendingDirectory.resolve(arquivo.getNomeArquivo());
+        String tempFileName = arquivo.getNomeArquivo();
+        Path sourcePath = pendingDirectory.resolve(tempFileName);
         if (!Files.exists(sourcePath)) {
             arquivo.setStatus("ERRO");
             ConteudoRetorno conteudo = new ConteudoRetorno();
             conteudo.setErro("Falha: Arquivo físico não foi encontrado em 'pendentes'.");
             arquivo.setConteudo(conteudo);
             arquivoRetornoRepository.save(arquivo);
-            log.error("Arquivo {} não encontrado na pasta de pendentes. Marcado como ERRO.", arquivo.getNomeArquivo());
+            log.error("Arquivo {} não encontrado na pasta de pendentes. Marcado como ERRO.", tempFileName);
             return;
         }
 
         String finalStatus;
+        String finalFileName = tempFileName;
         try {
             readFileAndPopulateContent(arquivo, sourcePath);
             finalStatus = "PROCESSADO";
-            log.info("Leitura do arquivo {} concluída com sucesso.", arquivo.getNomeArquivo());
+
+            ConteudoRetorno conteudo = arquivo.getConteudo();
+            if (conteudo != null && conteudo.getNomeEmpresa() != null && !conteudo.getNomeEmpresa().isEmpty()) {
+                String nomeEmpresa = conteudo.getNomeEmpresa().replaceAll("\s+", "_");
+                finalFileName = nomeEmpresa + "_" + tempFileName;
+                arquivo.setNomeArquivo(finalFileName);
+            }
+            log.info("Leitura do arquivo {} concluída com sucesso.", tempFileName);
         } catch (IOException | ParsingException e) {
             finalStatus = "ERRO";
             ConteudoRetorno conteudo = new ConteudoRetorno();
             conteudo.setErro("Falha ao ler e processar o arquivo: " + e.getMessage());
             arquivo.setConteudo(conteudo);
-            log.error("Falha ao ler e processar o arquivo {}. Causa: {}", arquivo.getNomeArquivo(), e.getMessage());
+            log.error("Falha ao ler e processar o arquivo {}. Causa: {}", tempFileName, e.getMessage());
         }
 
         arquivo.setStatus(finalStatus);
         arquivo.setDataProcessamento(LocalDateTime.now());
         arquivoRetornoRepository.save(arquivo);
 
+        final String finalNameToMove = finalFileName;
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
                 try {
                     Path destinationDir = "PROCESSADO".equals(arquivo.getStatus()) ? processedDirectory : errorDirectory;
-                    Files.move(sourcePath, destinationDir.resolve(arquivo.getNomeArquivo()), StandardCopyOption.REPLACE_EXISTING);
-                    log.info("Ação pós-commit: Arquivo {} movido para a pasta '{}'.", arquivo.getNomeArquivo(), destinationDir.getFileName());
+                    Files.move(sourcePath, destinationDir.resolve(finalNameToMove), StandardCopyOption.REPLACE_EXISTING);
+                    log.info("Ação pós-commit: Arquivo {} movido para a pasta '{}' como {}.", tempFileName, destinationDir.getFileName(), finalNameToMove);
                 } catch (IOException e) {
-                    log.error("CRÍTICO: O status do arquivo {} foi salvo como '{}', mas falhou ao movê-lo. Intervenção manual necessária.", arquivo.getNomeArquivo(), arquivo.getStatus(), e);
+                    log.error("CRÍTICO: O status do arquivo {} foi salvo como '{}', mas falhou ao movê-lo para {}. Intervenção manual necessária.", tempFileName, arquivo.getStatus(), finalNameToMove, e);
                 }
             }
         });

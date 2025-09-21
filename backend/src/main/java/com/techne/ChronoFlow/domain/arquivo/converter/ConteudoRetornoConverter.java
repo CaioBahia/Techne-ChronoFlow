@@ -1,6 +1,7 @@
 package com.techne.ChronoFlow.domain.arquivo.converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.techne.ChronoFlow.domain.arquivo.model.ConteudoRetorno;
@@ -10,7 +11,9 @@ import jakarta.persistence.Converter;
 @Converter(autoApply = false) // Usaremos @Convert na entidade para aplicar
 public class ConteudoRetornoConverter implements AttributeConverter<ConteudoRetorno, String> {
 
-    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     @Override
     public String convertToDatabaseColumn(ConteudoRetorno attribute) {
