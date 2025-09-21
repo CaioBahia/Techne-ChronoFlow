@@ -1,6 +1,5 @@
-package com.techne.ChronoFlow.domain.arquivo;
+package com.techne.ChronoFlow.domain.job;
 
-import com.techne.ChronoFlow.domain.job.JobStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
