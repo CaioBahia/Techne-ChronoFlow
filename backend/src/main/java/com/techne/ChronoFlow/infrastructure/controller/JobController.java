@@ -1,6 +1,7 @@
 package com.techne.ChronoFlow.infrastructure.controller;
 
-import com.techne.ChronoFlow.application.JobService;
+import com.techne.ChronoFlow.application.job.JobService;
+import com.techne.ChronoFlow.domain.arquivo.ArquivoRetorno;
 import com.techne.ChronoFlow.domain.job.Job;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,12 @@ public class JobController {
         return jobService.getJobById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/arquivos")
+    public ResponseEntity<List<ArquivoRetorno>> getArquivosByJobId(@PathVariable Long id) {
+        List<ArquivoRetorno> arquivos = jobService.getArquivosByJobId(id);
+        return ResponseEntity.ok(arquivos);
     }
 
     @PutMapping("/{id}")

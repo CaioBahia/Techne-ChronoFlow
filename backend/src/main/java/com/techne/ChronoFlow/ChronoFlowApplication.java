@@ -2,11 +2,13 @@ package com.techne.ChronoFlow;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling // Habilita a execução de tarefas agendadas (@Scheduled)
 public class ChronoFlowApplication {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 		SpringApplication.run(ChronoFlowApplication.class, args);
 	}
 

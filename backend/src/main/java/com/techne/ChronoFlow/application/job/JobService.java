@@ -1,8 +1,10 @@
-package com.techne.ChronoFlow.application;
+package com.techne.ChronoFlow.application.job;
 
-import com.techne.ChronoFlow.application.jobs.ProcessFileJob;
+import com.techne.ChronoFlow.domain.arquivo.ArquivoRetorno;
+import com.techne.ChronoFlow.domain.arquivo.ArquivoRetornoRepository;
 import com.techne.ChronoFlow.domain.job.Job;
 import com.techne.ChronoFlow.domain.job.JobRepository;
+import com.techne.ChronoFlow.domain.job.enums.JobStatus;
 import jakarta.annotation.PostConstruct;
 import org.quartz.*;
 import org.slf4j.Logger;
@@ -19,21 +21,27 @@ public class JobService {
     private static final Logger log = LoggerFactory.getLogger(JobService.class);
 
     private final JobRepository jobRepository;
+    private final ArquivoRetornoRepository arquivoRetornoRepository;
     private final Scheduler scheduler;
 
-    public JobService(JobRepository jobRepository, Scheduler scheduler) {
+    public JobService(JobRepository jobRepository, ArquivoRetornoRepository arquivoRetornoRepository, Scheduler scheduler) {
         this.jobRepository = jobRepository;
+        this.arquivoRetornoRepository = arquivoRetornoRepository;
         this.scheduler = scheduler;
     }
 
     @PostConstruct
-    public void scheduleExistingJobs() {
+    @Transactional
+    public void initializeAndScheduleJobs() {
+        // Reagenda todos os jobs que estão no banco de dados.
+        log.info("Iniciando o agendamento de todos os jobs existentes...");
         jobRepository.findAll().forEach(this::scheduleJob);
+        log.info("Agendamento de jobs concluído.");
     }
 
     @Transactional
     public Job createJob(Job job) {
-        job.setStatus("AGENDADO");
+        job.setStatus(JobStatus.AGENDADO);
         Job savedJob = jobRepository.save(job);
         scheduleJob(savedJob);
         return savedJob;
@@ -73,6 +81,11 @@ public class JobService {
             }
         });
         jobRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ArquivoRetorno> getArquivosByJobId(Long id) {
+        return arquivoRetornoRepository.findByJobId(id);
     }
 
     private void scheduleJob(Job job) {

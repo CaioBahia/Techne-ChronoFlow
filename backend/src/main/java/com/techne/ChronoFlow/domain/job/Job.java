@@ -1,5 +1,7 @@
 package com.techne.ChronoFlow.domain.job;
 
+import com.techne.ChronoFlow.domain.job.enums.Empresas;
+import com.techne.ChronoFlow.domain.job.enums.JobStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -17,8 +19,13 @@ public class Job {
     @Column(nullable = false)
     private String cronExpression;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private JobStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Empresas empresas;
 
     private LocalDateTime ultimaExecucao;
 
@@ -50,12 +57,20 @@ public class Job {
         this.cronExpression = cronExpression;
     }
 
-    public String getStatus() {
+    public JobStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(JobStatus status) {
         this.status = status;
+    }
+
+    public Empresas getEmpresa() {
+        return empresas;
+    }
+
+    public void setEmpresa(Empresas empresas) {
+        this.empresas = empresas;
     }
 
     public LocalDateTime getUltimaExecucao() {
