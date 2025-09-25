@@ -1,0 +1,147 @@
+import { Component, OnInit, inject, HostListener, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Job } from '@shared/models/job.model';
+import { JobService } from '../../services/job.service';
+import { JobFormComponent } from '../job-form/job-form.component';
+import { JobDetailsComponent } from '../job-details/job-details.component';
+import { ThemeService } from '@core/theme.service';
+import { ArquivoRetornoDialogComponent } from '../arquivo-retorno-dialog/arquivo-retorno-dialog.component';
+import { HttpErrorResponse } from '@angular/common/http';
+
+@Component({
+  selector: 'app-job-list',
+  standalone: true,
+  imports: [CommonModule, JobFormComponent, JobDetailsComponent, ArquivoRetornoDialogComponent],
+  templateUrl: './job-list.component.html',
+  styleUrls: ['./job-list.component.css']
+})
+export class JobListComponent implements OnInit {
+  jobs: Job[] = [];
+  showJobForm = false;
+  jobToEdit: Job | null = null;
+  showJobDetails = false;
+  jobToShowDetails: Job | null = null;
+  openDropdownJobId: number | null = null;
+  showArquivoRetornoDialog = false;
+  selectedJobForArquivoRetorno: Job | null = null;
+  isLoading = false;
+  saveError: string | null = null; // To hold the error message
+
+  themeService = inject(ThemeService);
+
+  constructor(private jobService: JobService, private elementRef: ElementRef) { }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.openDropdownJobId = null;
+    }
+  }
+
+  ngOnInit(): void {
+    this.loadJobs();
+  }
+
+  loadJobs(): void {
+    this.isLoading = true;
+    this.jobService.getJobs().subscribe({
+      next: jobs => {
+        this.jobs = jobs.map(job => {
+          if (job.proximaExecucao && typeof job.proximaExecucao === 'string') {
+            const parts = job.proximaExecucao.split(',').map(part => parseInt(part, 10));
+            return {
+              ...job,
+              proximaExecucao: new Date(parts[0], parts[1] - 1, parts[2], parts[3], parts[4])
+            };
+          }
+          return job;
+        });
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+        // TODO: Handle error loading jobs
+      }
+    });
+  }
+
+  toggleDropdown(event: MouseEvent, jobId: number): void {
+    event.stopPropagation();
+    this.openDropdownJobId = this.openDropdownJobId === jobId ? null : jobId;
+  }
+
+  openJobForm(job: Job | null = null): void {
+    this.jobToEdit = job;
+    this.showJobForm = true;
+    this.openDropdownJobId = null;
+    this.saveError = null; // Reset error when opening form
+  }
+
+  closeJobForm(): void {
+    this.showJobForm = false;
+    this.jobToEdit = null;
+    this.isLoading = false;
+    this.saveError = null; // Reset error on close
+  }
+
+  saveJob(job: Job): void {
+    if (this.isLoading) return; // Prevent multiple submissions
+    this.isLoading = true;
+    this.saveError = null; // Reset error on new submission
+
+    this.jobService.saveJob(job).subscribe({
+      next: () => {
+        this.loadJobs(); // Reload the entire list to ensure data is fresh
+        this.closeJobForm();
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('Error saving job:', err);
+        // Extract error message from backend response
+        this.saveError = err.error?.error || 'Ocorreu um erro desconhecido.';
+        this.isLoading = false; // IMPORTANT: Reset saving state on error
+      }
+    });
+  }
+
+  editJob(job: Job): void {
+    this.openJobForm(job);
+  }
+
+  showDetails(job: Job): void {
+    this.jobToShowDetails = job;
+    this.showJobDetails = true;
+    this.openDropdownJobId = null;
+  }
+
+  closeDetails(): void {
+    this.showJobDetails = false;
+    this.jobToShowDetails = null;
+  }
+
+  deleteJob(job: Job): void {
+    this.openDropdownJobId = null;
+    if (confirm(`Tem certeza que deseja excluir o job "${job.nome}"?`)) {
+      this.isLoading = true;
+      this.jobService.deleteJob(job.id).subscribe({
+        next: () => {
+          this.loadJobs(); // Reload jobs after successful deletion
+        },
+        error: (err) => {
+          console.error('Error deleting job:', err);
+          this.isLoading = false;
+          // Optionally, show an error message to the user
+        }
+      });
+    }
+  }
+
+  openArquivoRetornoDialog(job: Job): void {
+    this.selectedJobForArquivoRetorno = job;
+    this.showArquivoRetornoDialog = true;
+  }
+
+  closeArquivoRetornoDialog(): void {
+    this.showArquivoRetornoDialog = false;
+    this.selectedJobForArquivoRetorno = null;
+  }
+}

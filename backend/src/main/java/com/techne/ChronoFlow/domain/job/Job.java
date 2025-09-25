@@ -1,6 +1,5 @@
 package com.techne.ChronoFlow.domain.job;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.techne.ChronoFlow.domain.job.enums.Empresa;
 import com.techne.ChronoFlow.domain.job.enums.JobStatus;
 import jakarta.persistence.*;
@@ -9,9 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Table(name = "JOB")
@@ -39,11 +36,7 @@ public class Job {
     @Column(nullable = false)
     private Empresa empresa;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime ultimaExecucao;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime proximaExecucao;
-
-
 }

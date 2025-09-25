@@ -35,6 +35,7 @@ public class ArquivoRetorno {
     @Column(nullable = false)
     private String status;
 
+
     // Getters and Setters
 
     public Long getId() {
