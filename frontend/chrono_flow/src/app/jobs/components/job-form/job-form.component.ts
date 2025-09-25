@@ -40,11 +40,8 @@ export class JobFormComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Se a propriedade 'job' mudar
     if (changes['job']) {
-      // Reseta o formulário para o estado inicial
       this.jobForm.reset({ status: 'AGENDADO' });
-      // Se um novo 'job' foi passado (modo de edição), preenche o formulário
       if (this.job) {
         this.jobForm.patchValue(this.job);
       }
