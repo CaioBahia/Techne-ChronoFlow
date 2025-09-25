@@ -29,6 +29,6 @@ public class TransacaoRetorno {
     }
 
     public void setTipo(String tipo) {
-        this.tipo = tipo;
+        this.tipo = tipo.toUpperCase();
     }
 }
