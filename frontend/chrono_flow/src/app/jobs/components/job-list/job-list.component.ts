@@ -74,7 +74,11 @@ export class JobListComponent implements OnInit, OnDestroy {
         if (index !== -1) {
           // Cria um novo array para garantir a detecção de mudanças do Angular
           const updatedJobs = [...this.jobs];
-          updatedJobs[index] = { ...this.jobs[index], ...update };
+          // Mescla o job existente com a atualização formatada, garantindo que a data correta seja usada.
+          updatedJobs[index] = { 
+            ...this.jobs[index], // Pega o job existente (com nome, empresa, etc.)
+            ...update   // Sobrescreve status, ultimaExecucao e a proximaExecucao.
+          };
           this.jobs = updatedJobs;
         }
       },
@@ -109,10 +113,14 @@ export class JobListComponent implements OnInit, OnDestroy {
         const index = this.jobs.findIndex(j => j.id === savedJob.id);
         if (index !== -1) {
           // Atualiza o job existente
-          this.jobs[index] = savedJob;
+          // Cria um novo array para garantir que a detecção de mudanças do Angular seja acionada
+          const updatedJobs = [...this.jobs];
+          updatedJobs[index] = savedJob;
+          this.jobs = updatedJobs;
         } else {
           // Adiciona um novo job no início da lista
-          this.jobs.unshift(savedJob);
+          // O método unshift já modifica o array, mas para consistência, recriamos a referência.
+          this.jobs = [savedJob, ...this.jobs];
         }
         this.isLoading = false;
         this.closeJobForm();
