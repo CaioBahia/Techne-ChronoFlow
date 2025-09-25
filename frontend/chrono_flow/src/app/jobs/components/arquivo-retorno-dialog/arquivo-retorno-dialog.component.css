@@ -26,10 +26,8 @@
 
 .dialog-body {
   display: flex;
-  flex-direction: row;
-  gap: 20px;
+  flex-direction: column;
   flex-grow: 1;
-  overflow: hidden;
   width: 100%;
 }
 
@@ -118,12 +116,8 @@
   font-weight: bold;
 }
 
-.arquivo-details-mobile {
+.arquivo-details {
   display: block;
-}
-
-.arquivo-details-desktop {
-  display: none;
 }
 
 .arquivo-details-content {
@@ -132,11 +126,6 @@
   border-radius: 4px;
   background-color: #f9f9f9;
   margin: -1px 10px 10px 10px;
-}
-
-.arquivo-details-desktop .arquivo-details-content {
-  height: 100%;
-  height: 100%;
 }
 
 .arquivo-details h3 {
@@ -216,7 +205,7 @@
 }
 
 .arquivo-status.processado { background-color: #e6ffed; color: #28a745; }
-.arquivo-status.falha { background-color: #ffe6e6; color: #dc3545; }
+.arquivo-status.erro { background-color: #ffe6e6; color: #dc3545; }
 
 button {
   margin-top: 20px;
@@ -235,33 +224,4 @@ button {
 
 button:hover {
   background-color: #0056b3;
-}
-
-/* --- Layout para Desktop --- */
-@media (min-width: 768px) {
-  .dialog-body {
-    flex-direction: row;
-    gap: 20px;
-  }
-
-  .arquivo-list-container {
-    flex: 1;
-    margin-bottom: 0;
-  }
-
-  .arquivo-details-mobile {
-    display: none;
-  }
-
-  .arquivo-details-desktop {
-    display: block;
-    flex: 1.5;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-    overflow-y: auto;
-    height: 100%;
-    padding: 15px;
-    box-sizing: border-box;
-  }
 }

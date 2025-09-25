@@ -9,20 +9,21 @@
             <span class="arquivo-name">{{ arquivo.nomeArquivo }}</span>
             <span class="arquivo-status" [ngClass]="arquivo.status.toLowerCase()">{{ arquivo.status | uppercase }}</span>
           </div>
-          <div class="arquivo-details-mobile" *ngIf="selectedArquivo === arquivo">
-            <div class="arquivo-details-content">
+          <div class="arquivo-details" *ngIf="selectedArquivo === arquivo">
+            <div class="arquivo-details-content" *ngIf="arquivo.conteudo as conteudo; else errorContent">
+              <h3>Detalhes do Arquivo: {{ arquivo.nomeArquivo }}</h3>
               <p><strong>ID:</strong> {{ arquivo.id }}</p>
-              <p><strong>Nome da Empresa:</strong> {{ arquivo.conteudo.nomeEmpresa }}</p>
-              <p><strong>Lote:</strong> {{ arquivo.conteudo.lote }}</p>
-              <p><strong>Data de Geração:</strong> {{ arquivo.conteudo.dataGeracao }}</p>
+              <p><strong>Nome da Empresa:</strong> {{ conteudo.nomeEmpresa }}</p>
+              <p><strong>Lote:</strong> {{ conteudo.lote }}</p>
+              <p><strong>Data de Geração:</strong> {{ conteudo.dataGeracao }}</p>
               <p><strong>Data de Processamento:</strong> {{ arquivo.dataProcessamento | date:'short' }}</p>
               <p><strong>Status:</strong> {{ arquivo.status | uppercase }}</p>
 
-              <div *ngIf="arquivo.conteudo.erro" class="error-message">
-                <p><strong>Erro:</strong> {{ arquivo.conteudo.erro }}</p>
+              <div *ngIf="conteudo.erro" class="error-message">
+                <p><strong>Erro:</strong> {{ conteudo.erro }}</p>
               </div>
 
-              <div *ngIf="arquivo.conteudo.transacoes.length > 0" class="transacoes-section">
+              <div *ngIf="conteudo.transacoes && conteudo.transacoes.length > 0" class="transacoes-section">
                 <h4>Transações:</h4>
                 <div class="transacoes-table-container">
                   <table class="transacoes-table">
@@ -34,7 +35,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr *ngFor="let transacao of arquivo.conteudo.transacoes">
+                      <tr *ngFor="let transacao of conteudo.transacoes ?? []">
                         <td>{{ transacao.idTransacao }}</td>
                         <td>{{ transacao.valor | currency:'BRL' }}</td>
                         <td>{{ transacao.tipo }}</td>
@@ -44,59 +45,19 @@
                 </div>
               </div>
             </div>
+            <ng-template #errorContent>
+              <div class="arquivo-details-content">
+                <h3>Detalhes do Arquivo: {{ arquivo.nomeArquivo }}</h3>
+                <div class="error-message">
+                  <p><strong>Erro:</strong> Não foi possível carregar os detalhes deste arquivo.</p>
+                </div>
+              </div>
+            </ng-template>
           </div>
         </ng-container>
       </div>
-
-      <ng-container *ngIf="!isMobile">
-        <div class="arquivo-details-desktop" *ngIf="selectedArquivo; else noArquivoSelectedDesktop">
-          <ng-container *ngTemplateOutlet="detailsTemplate; context: { $implicit: selectedArquivo }"></ng-container>
-        </div>
-      </ng-container>
     </div>
 
     <button (click)="onClose()">Fechar</button>
   </div>
 </div>
-
-<ng-template #detailsTemplate let-arquivo>
-  <h3>Detalhes do Arquivo: {{ arquivo.nomeArquivo }}</h3>
-  <p><strong>ID:</strong> {{ arquivo.id }}</p>
-  <p><strong>Nome da Empresa:</strong> {{ arquivo.conteudo.nomeEmpresa }}</p>
-  <p><strong>Lote:</strong> {{ arquivo.conteudo.lote }}</p>
-  <p><strong>Data de Geração:</strong> {{ arquivo.conteudo.dataGeracao }}</p>
-  <p><strong>Data de Processamento:</strong> {{ arquivo.dataProcessamento | date:'short' }}</p>
-  <p><strong>Status:</strong> {{ arquivo.status | uppercase }}</p>
-
-  <div *ngIf="arquivo.conteudo.erro" class="error-message">
-    <p><strong>Erro:</strong> {{ arquivo.conteudo.erro }}</p>
-  </div>
-
-  <div *ngIf="arquivo.conteudo.transacoes.length > 0" class="transacoes-section">
-    <h4>Transações:</h4>
-    <div class="transacoes-table-container">
-      <table class="transacoes-table">
-        <thead>
-          <tr>
-            <th>ID Transação</th>
-            <th>Valor</th>
-            <th>Tipo</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let transacao of arquivo.conteudo.transacoes">
-            <td>{{ transacao.idTransacao }}</td>
-            <td>{{ transacao.valor | currency:'BRL' }}</td>
-            <td>{{ transacao.tipo }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #noArquivoSelectedDesktop>
-  <div class="arquivo-details-desktop placeholder-container">
-    <p class="placeholder-text">Selecione um arquivo para ver os detalhes.</p>
-  </div>
-</ng-template>
