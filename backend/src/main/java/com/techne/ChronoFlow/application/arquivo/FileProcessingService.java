@@ -213,7 +213,7 @@ public class FileProcessingService {
             List<ArquivoRetorno> arquivos = arquivoRetornoRepository.findByJobId(job.getId());
 
             if (arquivos.stream().anyMatch(a -> "PENDENTE".equals(a.getStatus()))) {
-                continue; // Job ainda tem arquivos sendo processados
+                continue;
             }
 
             long errorFiles = arquivos.stream().filter(a -> "ERRO".equals(a.getStatus())).count();

@@ -31,9 +31,6 @@ public class SseService {
 
         for (SseEmitter emitter : this.emitters) {
             try {
-                // CORREÇÃO APLICADA AQUI:
-                // O método SseEmitter.event() retorna um SseEventBuilder.
-                // Passamos o builder diretamente para o método send(), que sabe como lidar com ele.
                 emitter.send(SseEmitter.event()
                         .name("job-update")
                         .data(jobData));

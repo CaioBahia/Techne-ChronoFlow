@@ -36,8 +36,7 @@ public class JobService {
     @PostConstruct
     @Transactional
     public void initializeAndScheduleJobs() {
-        // Reagenda todos os jobs que estão no banco de dados.
-        log.info("Iniciando o agendamento de todos os jobs existentes...");
+        log.info("Iniciando o reagendamento de todos os jobs existentes...");
         jobRepository.findAll().forEach(this::scheduleJob);
         log.info("Agendamento de jobs concluído.");
     }

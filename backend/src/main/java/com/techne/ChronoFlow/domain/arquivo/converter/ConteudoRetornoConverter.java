@@ -8,7 +8,7 @@ import com.techne.ChronoFlow.domain.arquivo.model.ConteudoRetorno;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply = false) // Usaremos @Convert na entidade para aplicar
+@Converter(autoApply = false)
 public class ConteudoRetornoConverter implements AttributeConverter<ConteudoRetorno, String> {
 
     private final ObjectMapper objectMapper = new ObjectMapper()

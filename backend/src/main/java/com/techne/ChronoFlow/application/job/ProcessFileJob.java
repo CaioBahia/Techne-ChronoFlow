@@ -28,7 +28,6 @@ public class ProcessFileJob implements Job {
             fileProcessingService.collectAndRegisterFiles(jobId);
         } catch (Exception e) {
             log.error("Falha na execução do Job ID: {}. Erro: {}", jobId, e.getMessage());
-            // Lançar JobExecutionException para que o Quartz possa tratar a falha (ex: tentar novamente)
             throw new JobExecutionException(e);
         }
     }

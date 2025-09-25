@@ -1,28 +1,16 @@
 package com.techne.ChronoFlow.domain.arquivo.model;
 
+import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 public class TransacaoRetorno {
     @Setter
     private String idTransacao;
     @Setter
     private double valor;
-    private String tipo; // Ex: "pagamento", "recebimento"
-    // Outros campos relevantes da transação...
+    private String tipo;
 
-    // Getters e Setters
-
-    public String getIdTransacao() {
-        return idTransacao;
-    }
-
-    public double getValor() {
-        return valor;
-    }
-
-    public String getTipo() {
-        return tipo;
-    }
 
     public void setTipo(String tipo) {
         this.tipo = tipo.toUpperCase();

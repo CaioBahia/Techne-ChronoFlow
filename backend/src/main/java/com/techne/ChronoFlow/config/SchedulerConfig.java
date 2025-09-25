@@ -23,13 +23,11 @@ public class SchedulerConfig {
         this.jobRepository = jobRepository;
     }
 
-    @Scheduled(fixedRate = 10000) // Executa a cada 5 segundos
-    @Transactional(readOnly = true) // Apenas operações de leitura
+    @Scheduled(fixedRate = 10000)
+    @Transactional(readOnly = true)
     public void broadcastAllJobStatuses() {
-        // Busca TODOS os jobs do banco de dados, sem filtro de status
         List<Job> allJobs = jobRepository.findAll();
 
-        // Para cada job encontrado, envia seu status atual para o front-end
         for (Job job : allJobs) {
             JobStatusUpdateDTO updateDTO = new JobStatusUpdateDTO(job);
             sseService.sendJobUpdate(updateDTO);
