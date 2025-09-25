@@ -1,5 +1,6 @@
 package com.techne.ChronoFlow.domain.arquivo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.techne.ChronoFlow.domain.arquivo.converter.ConteudoRetornoConverter;
 import com.techne.ChronoFlow.domain.arquivo.model.ConteudoRetorno;
@@ -30,6 +31,7 @@ public class ArquivoRetorno {
     private ConteudoRetorno conteudo;
 
     @Column(nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dataProcessamento;
 
     @Column(nullable = false)

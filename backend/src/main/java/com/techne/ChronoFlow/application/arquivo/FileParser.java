@@ -79,9 +79,9 @@ public class FileParser {
 
             String tipoStr = line.substring(0, 1);
             if ("P".equals(tipoStr)) {
-                transacao.setTipo("DEBITO");
+                transacao.setTipo("pagamento");
             } else if ("R".equals(tipoStr)) {
-                transacao.setTipo("CREDITO");
+                transacao.setTipo("recebimento");
             } else {
                 transacao.setTipo("DESCONHECIDO");
             }

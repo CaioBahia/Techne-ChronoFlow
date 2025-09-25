@@ -1,5 +1,6 @@
 package com.techne.ChronoFlow.domain.arquivo.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDate;
 import java.util.List;
@@ -9,6 +10,7 @@ public class ConteudoRetorno {
     // --- Dados do Cabeçalho ---
     private String nomeEmpresa;
     private String lote;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate dataGeracao;
 
     // --- Dados das Transações ---

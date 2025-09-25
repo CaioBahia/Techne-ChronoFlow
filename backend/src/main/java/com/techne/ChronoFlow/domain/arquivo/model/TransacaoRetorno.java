@@ -3,7 +3,7 @@ package com.techne.ChronoFlow.domain.arquivo.model;
 public class TransacaoRetorno {
     private String idTransacao;
     private double valor;
-    private String tipo; // Ex: "DEBITO", "CREDITO"
+    private String tipo; // Ex: "pagamento", "recebimento"
     // Outros campos relevantes da transação...
 
     // Getters e Setters
