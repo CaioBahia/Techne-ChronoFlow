@@ -83,7 +83,7 @@ Certifique-se de que você tem as seguintes ferramentas instaladas:
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [URL_DO_SEU_REPOSITORIO_GIT]
+    git clone git@github.com:CaioBahia/Techne-ChronoFlow.git
     ```
 
 2.  **Configure e execute o Backend:**
