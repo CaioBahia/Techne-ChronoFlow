@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Job } from '../../shared/models/job.model';
+import { Job } from '@shared/models/job.model';
 
 @Component({
   selector: 'app-job-details',

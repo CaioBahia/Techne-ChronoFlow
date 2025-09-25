@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Output, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Job } from '../../shared/models/job.model';
-import { Empresa, EmpresaMapping } from '../../shared/enums/empresa.enum';
+import { Job } from '@shared/models/job.model';
+import { Empresa, EmpresaMapping } from '@shared/enums/empresa.enum';
 
 @Component({
   selector: 'app-job-form',
@@ -13,6 +13,8 @@ import { Empresa, EmpresaMapping } from '../../shared/enums/empresa.enum';
 })
 export class JobFormComponent implements OnInit {
   @Input() job: Job | null = null;
+  @Input() isLoading: boolean = false;
+  @Input() saveError: string | null = null;
   @Output() save = new EventEmitter<Job>();
   @Output() close = new EventEmitter<void>();
 

@@ -20,9 +20,15 @@
       </select>
     </div>
 
+    <div *ngIf="saveError" class="error-message">
+      {{ saveError }}
+    </div>
+
     <div class="form-actions">
       <button type="button" (click)="onClose()" class="btn btn-secondary">Cancelar</button>
-      <button type="submit" [disabled]="!jobForm.valid" class="btn btn-primary">Salvar</button>
+      <button type="submit" [disabled]="!jobForm.valid || isLoading" class="btn btn-primary">
+        {{ isLoading ? 'Salvando...' : 'Salvar' }}
+      </button>
     </div>
   </form>
 </div>

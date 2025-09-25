@@ -161,7 +161,7 @@ public class FileProcessingService {
 
             ConteudoRetorno conteudo = arquivo.getConteudo();
             if (conteudo != null && conteudo.getNomeEmpresa() != null && !conteudo.getNomeEmpresa().isEmpty()) {
-                String nomeEmpresa = conteudo.getNomeEmpresa().replaceAll("\\s+", "_");
+                String nomeEmpresa = conteudo.getNomeEmpresa().replaceAll("\s+", "_");
                 finalFileName = nomeEmpresa + "_" + tempFileName;
                 arquivo.setNomeArquivo(finalFileName);
             }
