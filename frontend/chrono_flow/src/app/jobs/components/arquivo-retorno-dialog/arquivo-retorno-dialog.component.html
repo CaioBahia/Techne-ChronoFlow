@@ -2,36 +2,57 @@
   <div class="dialog-content" [class.dark-theme]="themeService.isDark()" (click)="$event.stopPropagation()">
     <h2>Arquivos de Retorno</h2>
 
-    <div class="arquivo-list">
-      <ng-container *ngFor="let arquivo of arquivosRetorno">
-        <div class="arquivo-item" [class.selected]="selectedArquivo === arquivo" (click)="selectArquivo(arquivo)">
-          {{ arquivo.nomeArquivo }}
-        </div>
-        <div *ngIf="selectedArquivo === arquivo" class="arquivo-details-inline">
-          <h3>Detalhes do Arquivo: {{ arquivo.nomeArquivo }}</h3>
-          <p><strong>ID:</strong> {{ arquivo.id }}</p>
-          <p><strong>Nome da Empresa:</strong> {{ arquivo.conteudo.nomeEmpresa }}</p>
-          <p><strong>Lote:</strong> {{ arquivo.conteudo.lote }}</p>
-          <p><strong>Data de Geração:</strong> {{ arquivo.conteudo.dataGeracao }}</p>
-          <p><strong>Data de Processamento:</strong> {{ arquivo.dataProcessamento | date:'short' }}</p>
-          <p><strong>Status:</strong> {{ arquivo.status }}</p>
+    <div class="dialog-body">
+      <div class="arquivo-list-container">
+        <ng-container *ngFor="let arquivo of arquivosRetorno">
+          <div class="arquivo-item" [class.selected]="selectedArquivo === arquivo" (click)="selectArquivo(arquivo)">
+            <span class="arquivo-name">{{ arquivo.nomeArquivo }}</span>
+            <span class="arquivo-status" [ngClass]="arquivo.status.toLowerCase()">{{ arquivo.status | uppercase }}</span>
+          </div>
+          <!-- Detalhes para o layout mobile (acordeão) -->
+          <div class="arquivo-details-mobile" *ngIf="selectedArquivo === arquivo">
+            <div class="arquivo-details-content">
+              <p><strong>ID:</strong> {{ arquivo.id }}</p>
+              <p><strong>Nome da Empresa:</strong> {{ arquivo.conteudo.nomeEmpresa }}</p>
+              <p><strong>Lote:</strong> {{ arquivo.conteudo.lote }}</p>
+              <p><strong>Data de Geração:</strong> {{ arquivo.conteudo.dataGeracao }}</p>
+              <p><strong>Data de Processamento:</strong> {{ arquivo.dataProcessamento | date:'short' }}</p>
+              <p><strong>Status:</strong> {{ arquivo.status | uppercase }}</p>
 
-          <div *ngIf="arquivo.conteudo.erro">
-            <p class="error-message"><strong>Erro:</strong> {{ arquivo.conteudo.erro }}</p>
-          </div>
+              <div *ngIf="arquivo.conteudo.erro" class="error-message">
+                <p><strong>Erro:</strong> {{ arquivo.conteudo.erro }}</p>
+              </div>
 
-          <div *ngIf="arquivo.conteudo.transacoes.length > 0">
-            <h4>Transações:</h4>
-            <ul>
-              <li *ngFor="let transacao of arquivo.conteudo.transacoes">
-                {{ transacao.idTransacao }} - {{ transacao.valor | currency:'BRL' }} ({{ transacao.tipo }})
-              </li>
-            </ul>
-            <p><strong>Valor Total:</strong> {{ getTotalValor(arquivo.conteudo.transacoes) | currency:'BRL' }}</p>
+              <div *ngIf="arquivo.conteudo.transacoes.length > 0" class="transacoes-section">
+                <h4>Transações:</h4>
+                <div class="transacoes-table-container">
+                  <table class="transacoes-table">
+                    <thead>
+                      <tr>
+                        <th>ID Transação</th>
+                        <th>Valor</th>
+                        <th>Tipo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let transacao of arquivo.conteudo.transacoes">
+                        <td>{{ transacao.idTransacao }}</td>
+                        <td>{{ transacao.valor | currency:'BRL' }}</td>
+                        <td>{{ transacao.tipo }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
-          <div *ngIf="arquivo.conteudo.transacoes.length === 0 && !arquivo.conteudo.erro">
-            <p>Nenhuma transação encontrada para este arquivo.</p>
-          </div>
+        </ng-container>
+      </div>
+
+      <!-- Detalhes para o layout desktop (duas colunas) -->
+      <ng-container *ngIf="!isMobile">
+        <div class="arquivo-details-desktop" *ngIf="selectedArquivo; else noArquivoSelectedDesktop">
+          <ng-container *ngTemplateOutlet="detailsTemplate; context: { $implicit: selectedArquivo }"></ng-container>
         </div>
       </ng-container>
     </div>
@@ -39,3 +60,47 @@
     <button (click)="onClose()">Fechar</button>
   </div>
 </div>
+
+<!-- Template para os detalhes no desktop -->
+<ng-template #detailsTemplate let-arquivo>
+  <h3>Detalhes do Arquivo: {{ arquivo.nomeArquivo }}</h3>
+  <p><strong>ID:</strong> {{ arquivo.id }}</p>
+  <p><strong>Nome da Empresa:</strong> {{ arquivo.conteudo.nomeEmpresa }}</p>
+  <p><strong>Lote:</strong> {{ arquivo.conteudo.lote }}</p>
+  <p><strong>Data de Geração:</strong> {{ arquivo.conteudo.dataGeracao }}</p>
+  <p><strong>Data de Processamento:</strong> {{ arquivo.dataProcessamento | date:'short' }}</p>
+  <p><strong>Status:</strong> {{ arquivo.status | uppercase }}</p>
+
+  <div *ngIf="arquivo.conteudo.erro" class="error-message">
+    <p><strong>Erro:</strong> {{ arquivo.conteudo.erro }}</p>
+  </div>
+
+  <div *ngIf="arquivo.conteudo.transacoes.length > 0" class="transacoes-section">
+    <h4>Transações:</h4>
+    <div class="transacoes-table-container">
+      <table class="transacoes-table">
+        <thead>
+          <tr>
+            <th>ID Transação</th>
+            <th>Valor</th>
+            <th>Tipo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let transacao of arquivo.conteudo.transacoes">
+            <td>{{ transacao.idTransacao }}</td>
+            <td>{{ transacao.valor | currency:'BRL' }}</td>
+            <td>{{ transacao.tipo }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Placeholder para quando nenhum arquivo estiver selecionado no desktop -->
+<ng-template #noArquivoSelectedDesktop>
+  <div class="arquivo-details-desktop placeholder-container">
+    <p class="placeholder-text">Selecione um arquivo para ver os detalhes.</p>
+  </div>
+</ng-template>

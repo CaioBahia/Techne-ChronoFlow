@@ -57,10 +57,9 @@ export class JobListComponent implements OnInit {
         });
         this.isLoading = false;
       },
-      error: (err) => { // Changed to capture the error object
-        console.error('Error loading jobs:', err); // Log the full error
+      error: (err) => {
+        console.error('Error loading jobs:', err);
         this.isLoading = false;
-        // TODO: Handle error loading jobs
       }
     });
   }
@@ -74,30 +73,22 @@ export class JobListComponent implements OnInit {
     this.jobToEdit = job;
     this.showJobForm = true;
     this.openDropdownJobId = null;
-    this.saveError = null; // Reset error when opening form
+    this.saveError = null;
   }
 
   closeJobForm(): void {
-    console.log('[TRACE] closeJobForm: Setting showJobForm to false.');
     this.showJobForm = false;
     this.jobToEdit = null;
     this.isLoading = false;
-    this.saveError = null; // Reset error on close
   }
 
   saveJob(job: Job): void {
-    console.log('[TRACE] saveJob: Starting...');
-    if (this.isLoading) {
-      console.log('[TRACE] saveJob: Already loading, exiting.');
-      return;
-    }
     this.isLoading = true;
     this.saveError = null;
 
     this.jobService.saveJob(job).subscribe({
       next: (savedJob: Job) => {
         this.zone.run(() => {
-          console.log('[TRACE] saveJob: Success callback (next) executed.', savedJob);
           const index = this.jobs.findIndex(j => j.id === savedJob.id);
           if (index !== -1) {
             this.jobs[index] = savedJob;
@@ -110,7 +101,6 @@ export class JobListComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.zone.run(() => {
-          console.error('[TRACE] saveJob: Error callback executed.', err);
           this.saveError = err.error?.error || 'Ocorreu um erro desconhecido.';
           this.isLoading = false;
         });
@@ -139,12 +129,11 @@ export class JobListComponent implements OnInit {
       this.isLoading = true;
       this.jobService.deleteJob(job.id).subscribe({
         next: () => {
-          this.loadJobs(); // Reload jobs after successful deletion
+          this.loadJobs();
         },
         error: (err) => {
           console.error('Error deleting job:', err);
           this.isLoading = false;
-          // Optionally, show an error message to the user
         }
       });
     }

@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, inject } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, inject, ViewChild, TemplateRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ArquivoRetornoService } from '../../services/arquivo-retorno.service';
 import { ArquivoRetorno, Transacao } from '@shared/models/arquivo-retorno.model';
@@ -12,12 +12,15 @@ import { ThemeService } from '@core/theme.service';
   templateUrl: './arquivo-retorno-dialog.component.html',
   styleUrls: ['./arquivo-retorno-dialog.component.css']
 })
-export class ArquivoRetornoDialogComponent implements OnInit {
+export class ArquivoRetornoDialogComponent implements OnInit, OnDestroy {
   @Output() close = new EventEmitter<void>();
   @Input() job: Job | null = null;
 
+  @ViewChild('detailsTemplate', { static: true }) detailsTemplate!: TemplateRef<any>;
+
   arquivosRetorno: ArquivoRetorno[] = [];
   selectedArquivo: ArquivoRetorno | null = null;
+  isMobile = window.innerWidth < 768;
 
   themeService = inject(ThemeService);
 
@@ -29,13 +32,16 @@ export class ArquivoRetornoDialogComponent implements OnInit {
         this.arquivosRetorno = data;
       });
     } else {
-      // Handle case where job or job.id is not available, maybe fetch all or show error
       console.warn('Job or Job ID not provided to ArquivoRetornoDialogComponent.');
-      // Optionally, fetch all if that's a desired fallback
-      // this.arquivoRetornoService.getArquivosRetorno().subscribe(data => {
-      //   this.arquivosRetorno = data;
-      // });
     }
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('resize', this.onResize);
+  }
+
+  private onResize = (): void => {
+    this.isMobile = window.innerWidth < 768;
   }
 
   selectArquivo(arquivo: ArquivoRetorno): void {
@@ -44,9 +50,5 @@ export class ArquivoRetornoDialogComponent implements OnInit {
 
   onClose(): void {
     this.close.emit();
-  }
-
-  getTotalValor(transacoes: Transacao[]): number {
-    return transacoes.reduce((sum, transacao) => sum + transacao.valor, 0);
   }
 }

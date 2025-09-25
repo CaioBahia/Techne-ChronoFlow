@@ -16,14 +16,21 @@
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 80%; /* Added */
-  height: 80%; /* Added */
-  max-width: 95%; /* Increased */
-  max-height: 95%; /* Increased */
+  width: 90vw;
+  height: 85vh;
+  max-width: 1200px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Added */
+}
+
+.dialog-body {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  flex-grow: 1;
+  overflow: hidden; /* Prevent body from overflowing dialog-content */
+  width: 100%;
 }
 
 .dialog-content.dark-theme {
@@ -53,13 +60,10 @@
   background-color: #666;
 }
 
-.dialog-content.dark-theme .arquivo-details {
+.dialog-content.dark-theme .arquivo-details-desktop,
+.dialog-content.dark-theme .arquivo-details-content {
   border-color: #555;
   background-color: #444;
-}
-
-.dialog-content.dark-theme .arquivo-details li {
-  border-bottom-color: #555;
 }
 
 .dialog-content.dark-theme button {
@@ -71,19 +75,29 @@
   background-color: #0056b3;
 }
 
-.arquivo-list {
+.arquivo-list-container {
   margin-bottom: 20px;
-  border: 1px solid #eee;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  /* max-height: 200px; Removed */
   overflow-y: auto;
-  flex-grow: 1; /* Added */
+  flex: 1 1 100%;
 }
 
 .arquivo-item {
   padding: 10px;
   cursor: pointer;
   border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.arquivo-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
 }
 
 .arquivo-item:last-child {
@@ -99,35 +113,35 @@
   font-weight: bold;
 }
 
-.arquivo-details {
-  margin-top: 20px;
+.arquivo-details-mobile {
+  display: block; /* Visível por padrão (mobile-first) */
+}
+
+.arquivo-details-desktop {
+  display: none; /* Escondido por padrão */
+}
+
+.arquivo-details-content {
   padding: 15px;
   border: 1px solid #ddd;
   border-radius: 4px;
   background-color: #f9f9f9;
+  margin: -1px 10px 10px 10px; /* Alinha com o item da lista */
+}
+
+.arquivo-details-desktop .arquivo-details-content {
+  height: 100%;
+  height: 100%;
 }
 
 .arquivo-details h3 {
   margin-top: 0;
   color: #333;
+  word-break: break-word; /* Quebra palavras longas para evitar overflow */
 }
 
 .arquivo-details p {
   margin-bottom: 5px;
-}
-
-.arquivo-details ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.arquivo-details li {
-  padding: 5px 0;
-  border-bottom: 1px dotted #eee;
-}
-
-.arquivo-details li:last-child {
-  border-bottom: none;
 }
 
 .error-message {
@@ -135,17 +149,114 @@
   font-weight: bold;
 }
 
+.transacoes-section {
+  margin-top: 15px;
+}
+
+.transacoes-table-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.transacoes-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.transacoes-table th,
+.transacoes-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.transacoes-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.dialog-content.dark-theme .transacoes-table th,
+.dialog-content.dark-theme .transacoes-table td {
+  border-color: #555;
+}
+
+.dialog-content.dark-theme .transacoes-table th {
+  background-color: #3a3a3a;
+}
+
+.dialog-content.dark-theme .transacoes-table tr:nth-child(even) {
+  background-color: #4a4a4a;
+}
+
+.placeholder-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #888;
+  font-style: italic;
+}
+
+.dialog-content.dark-theme .placeholder-text {
+  color: #aaa;
+}
+
+.arquivo-status {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.arquivo-status.processado { background-color: #e6ffed; color: #28a745; }
+.arquivo-status.falha { background-color: #ffe6e6; color: #dc3545; }
+
 button {
-  margin-top: auto; /* Changed from 20px */
+  margin-top: 20px;
   padding: 10px 15px;
   background-color: #007bff;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  align-self: center; /* Changed from flex-end */
+  align-self: flex-end;
+}
+
+.placeholder-container {
+  padding: 0 !important;
 }
 
 button:hover {
   background-color: #0056b3;
+}
+
+/* --- Layout para Desktop --- */
+@media (min-width: 768px) {
+  .dialog-body {
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .arquivo-list-container {
+    flex: 1; /* Changed from flex: 1 1 40% */
+    margin-bottom: 0;
+  }
+
+  .arquivo-details-mobile {
+    display: none; /* Esconde detalhes do acordeão no desktop */
+  }
+
+  .arquivo-details-desktop {
+    display: block; /* Mostra o container de detalhes do desktop */
+    flex: 1.5; /* Changed from flex: 1 1 60% to maintain proportion */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    overflow-y: auto;
+    height: 100%;
+    padding: 15px;
+    box-sizing: border-box; /* Garante que o padding não estoure a altura */
+  }
 }
