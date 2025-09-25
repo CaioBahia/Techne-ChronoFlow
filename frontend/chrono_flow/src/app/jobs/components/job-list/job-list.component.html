@@ -1,0 +1,75 @@
+<div class="container">
+  <header>
+    <h1>Chrono<span class="flow">Flow</span></h1>
+    <div class="theme-switch-wrapper">
+      <label class="theme-switch" for="checkbox">
+        <input type="checkbox" id="checkbox" [checked]="themeService.isDark()" (change)="themeService.toggleTheme()" />
+        <div class="slider round"></div>
+      </label>
+    </div>
+  </header>
+
+  <div class="sub-header">
+    <button class="create-btn" (click)="openJobForm()">
+      <span class="plus-icon">+</span>
+      Novo Agendamento
+    </button>
+  </div>
+
+  <div class="table-container">
+    <div *ngIf="isLoading" class="loading-overlay">
+      <div class="spinner"></div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Empresa</th>
+          <th>Status</th>
+          <th>Próxima Execução</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let job of jobs">
+          <td data-label="Nome">{{ job.nome }}</td>
+          <td data-label="Empresa">{{ job.empresa }}</td>
+          <td data-label="Status"><span class="status" [ngClass]="job.status.toLowerCase()">{{ job.status }}</span></td>
+          <td data-label="Próxima Execução">{{ job.proximaExecucao | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td data-label="Ações">
+            <div class="dropdown">
+              <button class="dots-btn">&#8942;</button>
+              <div class="dropdown-content">
+                <a (click)="editJob(job)">Editar</a>
+                <a (click)="showDetails(job)">Mostrar Detalhes</a>
+                <a (click)="openArquivoRetornoDialog(job)">Ver Arquivos de Retorno</a>
+                <a (click)="deleteJob(job)">Excluir</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<app-job-form 
+  *ngIf="showJobForm" 
+  [job]="jobToEdit"
+  [isLoading]="isLoading"
+  [saveError]="saveError"
+  (save)="saveJob($event)" 
+  (close)="closeJobForm()">
+</app-job-form>
+
+<app-job-details
+  *ngIf="showJobDetails"
+  [job]="jobToShowDetails"
+  (close)="closeDetails()">
+</app-job-details>
+
+<app-arquivo-retorno-dialog
+  *ngIf="showArquivoRetornoDialog"
+  [job]="selectedJobForArquivoRetorno"
+  (close)="closeArquivoRetornoDialog()">
+</app-arquivo-retorno-dialog>

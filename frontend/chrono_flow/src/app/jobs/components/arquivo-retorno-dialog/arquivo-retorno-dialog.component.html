@@ -1,0 +1,41 @@
+<div class="dialog-overlay" (click)="onClose()">
+  <div class="dialog-content" [class.dark-theme]="themeService.isDark()" (click)="$event.stopPropagation()">
+    <h2>Arquivos de Retorno</h2>
+
+    <div class="arquivo-list">
+      <ng-container *ngFor="let arquivo of arquivosRetorno">
+        <div class="arquivo-item" [class.selected]="selectedArquivo === arquivo" (click)="selectArquivo(arquivo)">
+          {{ arquivo.nomeArquivo }}
+        </div>
+        <div *ngIf="selectedArquivo === arquivo" class="arquivo-details-inline">
+          <h3>Detalhes do Arquivo: {{ arquivo.nomeArquivo }}</h3>
+          <p><strong>ID:</strong> {{ arquivo.id }}</p>
+          <p><strong>Nome da Empresa:</strong> {{ arquivo.conteudo.nomeEmpresa }}</p>
+          <p><strong>Lote:</strong> {{ arquivo.conteudo.lote }}</p>
+          <p><strong>Data de Geração:</strong> {{ arquivo.conteudo.dataGeracao }}</p>
+          <p><strong>Data de Processamento:</strong> {{ arquivo.dataProcessamento | date:'short' }}</p>
+          <p><strong>Status:</strong> {{ arquivo.status }}</p>
+
+          <div *ngIf="arquivo.conteudo.erro">
+            <p class="error-message"><strong>Erro:</strong> {{ arquivo.conteudo.erro }}</p>
+          </div>
+
+          <div *ngIf="arquivo.conteudo.transacoes.length > 0">
+            <h4>Transações:</h4>
+            <ul>
+              <li *ngFor="let transacao of arquivo.conteudo.transacoes">
+                {{ transacao.idTransacao }} - {{ transacao.valor | currency:'BRL' }} ({{ transacao.tipo }})
+              </li>
+            </ul>
+            <p><strong>Valor Total:</strong> {{ getTotalValor(arquivo.conteudo.transacoes) | currency:'BRL' }}</p>
+          </div>
+          <div *ngIf="arquivo.conteudo.transacoes.length === 0 && !arquivo.conteudo.erro">
+            <p>Nenhuma transação encontrada para este arquivo.</p>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <button (click)="onClose()">Fechar</button>
+  </div>
+</div>

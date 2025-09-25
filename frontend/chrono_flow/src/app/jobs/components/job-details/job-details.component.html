@@ -1,0 +1,31 @@
+<div class="modal-backdrop" (click)="onClose()"></div>
+<div class="modal-content">
+  <h2>Detalhes do Agendamento</h2>
+  <div *ngIf="job">
+    <div class="detail-item">
+      <strong>ID:</strong> {{ job.id }}
+    </div>
+    <div class="detail-item">
+      <strong>Nome:</strong> {{ job.nome }}
+    </div>
+    <div class="detail-item">
+      <strong>Expressão Cron:</strong> <code>{{ job.cronExpression }}</code>
+    </div>
+    <div class="detail-item">
+      <strong>Empresa:</strong> {{ job.empresa }}
+    </div>
+    <div class="detail-item">
+      <strong>Status:</strong> <span class="status" [ngClass]="job.status.toLowerCase()">{{ job.status }}</span>
+    </div>
+    <div class="detail-item">
+      <strong>Última Execução:</strong> {{ job.ultimaExecucao | date: 'dd/MM/yyyy HH:mm:ss' : 'UTC' }}
+    </div>
+    <div class="detail-item">
+      <strong>Próxima Execução:</strong> {{ job.proximaExecucao | date: 'dd/MM/yyyy HH:mm:ss' : 'UTC' }}
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" (click)="onClose()" class="btn btn-secondary">Fechar</button>
+  </div>
+</div>
