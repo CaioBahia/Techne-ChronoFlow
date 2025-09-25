@@ -15,7 +15,7 @@ export class SseService {
 
       eventSource.addEventListener('job-update', (event: MessageEvent) => {
         const jobData = JSON.parse(event.data);
-        // Usamos NgZone para garantir que a detecção de mudanças do Angular seja acionada
+        
         this._zone.run(() => {
           observer.next(jobData);
         });
@@ -24,8 +24,6 @@ export class SseService {
       eventSource.onerror = (error) => {
         this._zone.run(() => observer.error(error));
       };
-
-      // Retorna uma função para fechar a conexão quando o Observable for "unsubscribed"
       return () => eventSource.close();
     });
   }

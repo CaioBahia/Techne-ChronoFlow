@@ -73,12 +73,10 @@ export class JobListComponent implements OnInit, OnDestroy {
         const index = this.jobs.findIndex(j => j.id === update.id);
         console.log('SSE: Job update received', update);
         if (index !== -1) {
-          // Cria um novo array para garantir a detecção de mudanças do Angular
           const updatedJobs = [...this.jobs];
-          // Mescla o job existente com a atualização formatada, garantindo que a data correta seja usada.
           updatedJobs[index] = { 
-            ...this.jobs[index], // Pega o job existente (com nome, empresa, etc.)
-            ...update   // Sobrescreve status, ultimaExecucao e a proximaExecucao.
+            ...this.jobs[index], 
+            ...update   
           };
           this.jobs = updatedJobs;
         }
@@ -113,14 +111,10 @@ export class JobListComponent implements OnInit, OnDestroy {
       next: (savedJob: Job) => {
         const index = this.jobs.findIndex(j => j.id === savedJob.id);
         if (index !== -1) {
-          // Atualiza o job existente
-          // Cria um novo array para garantir que a detecção de mudanças do Angular seja acionada
           const updatedJobs = [...this.jobs];
           updatedJobs[index] = savedJob;
           this.jobs = updatedJobs;
         } else {
-          // Adiciona um novo job no início da lista
-          // O método unshift já modifica o array, mas para consistência, recriamos a referência.
           this.jobs = [savedJob, ...this.jobs];
         }
         this.isLoading = false;
@@ -153,7 +147,6 @@ export class JobListComponent implements OnInit, OnDestroy {
   }
 
   deleteJob(job: Job): void {
-    // Adiciona uma guarda para não permitir a exclusão se o status for 'PROCESSANDO'
     if (job.status === 'PROCESSANDO') {
       console.warn('Tentativa de excluir um job em processamento foi bloqueada.');
       return;
@@ -164,7 +157,6 @@ export class JobListComponent implements OnInit, OnDestroy {
       this.isLoading = true;
       this.jobService.deleteJob(job.id).subscribe({
         next: () => {
-          // Remove o job da lista local em vez de recarregar tudo
           this.jobs = this.jobs.filter(j => j.id !== job.id);
           this.isLoading = false;
         },

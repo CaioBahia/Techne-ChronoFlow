@@ -1,20 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ArquivoRetorno } from '@shared/models/arquivo-retorno.model';
-import { HttpClient } from '@angular/common/http'; // Added this import
-import { environment } from '@env/environment'; // Added this import
+import { HttpClient } from '@angular/common/http'; 
+import { environment } from '@env/environment'; 
 
 @Injectable({
   providedIn: 'root'
 })
 export class ArquivoRetornoService {
 
-  private apiUrl = environment.apiUrl; // Using API URL from environment
+  private apiUrl = environment.apiUrl; 
 
-  constructor(private http: HttpClient) { } // Injected HttpClient
+  constructor(private http: HttpClient) { } 
 
   getArquivosRetorno(): Observable<ArquivoRetorno[]> {
-    // Assuming a general endpoint for all return files if needed
     return this.http.get<ArquivoRetorno[]>(`${this.apiUrl}/arquivos`);
   }
 

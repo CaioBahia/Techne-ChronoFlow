@@ -8,7 +8,7 @@
   --btn-secondary-text: #000;
   --btn-secondary-hover-bg: #ddd;
 
-  /* New styles for the host to act as a container */
+
   position: fixed;
   top: 0;
   left: 0;
@@ -29,7 +29,7 @@
 }
 
 .modal-backdrop {
-  position: absolute; /* Changed from fixed */
+  position: absolute; 
   top: 0;
   left: 0;
   width: 100%;
@@ -38,7 +38,7 @@
 }
 
 .modal-content {
-  position: absolute; /* Changed from fixed */
+  position: absolute; 
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -119,7 +119,7 @@ h2 {
   background-color: var(--btn-secondary-hover-bg);
 }
 
-/* Adicionado para alinhar o input e o botão de ajuda */
+
 .cron-input-group {
   display: flex;
   align-items: center;
@@ -127,8 +127,8 @@ h2 {
 }
 
 .cron-input-group input {
-  flex: 1; /* Faz o input ocupar o espaço restante */
-  width: auto; /* Sobrescreve o width: 100% que vinha do .form-group input */
+  flex: 1; 
+  width: auto; 
 }
 
 .cron-help-btn {
@@ -138,7 +138,7 @@ h2 {
   text-decoration: none;
   padding: 0;
   border-radius: 6px;
-  /* Adicionado para centralizar o '?' */
+  
   display: flex;
   align-items: center;
   justify-content: center;
