@@ -8,7 +8,6 @@ import { ThemeService } from '@core/theme.service';
 import { ArquivoRetornoDialogComponent } from '../arquivo-retorno-dialog/arquivo-retorno-dialog.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { trigger, state, style, transition, animate } from '@angular/animations';
 import { SseService } from '../../services/sse.service';
 
 @Component({
@@ -17,20 +16,7 @@ import { SseService } from '../../services/sse.service';
   imports: [CommonModule, JobFormComponent, JobDetailsComponent, ArquivoRetornoDialogComponent],
   templateUrl: './job-list.component.html',
   styleUrls: ['./job-list.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [
-    trigger('flash', [
-      // Estado inicial (sem estilo extra)
-      state('normal', style({})),
-      // Estado para quando a atualização acontece
-      state('updated', style({ backgroundColor: '#fffbe0' })), // Um amarelo bem claro
-      // Transição: quando o estado muda para 'updated', anima para o amarelo e depois volta ao normal
-      transition('* => updated', [
-        animate('300ms ease-out', style({ backgroundColor: '#fffbe0' })),
-        animate('700ms ease-in', style({ backgroundColor: 'transparent' }))
-      ])
-    ])
-  ]
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class JobListComponent implements OnInit, OnDestroy {
   jobs: Job[] = [];
@@ -94,8 +80,6 @@ export class JobListComponent implements OnInit, OnDestroy {
             ...this.jobs[index], // Pega o job existente (com nome, empresa, etc.)
             ...update   // Sobrescreve status, ultimaExecucao e a proximaExecucao.
           };
-          // Adiciona uma propriedade temporária para controlar a animação
-          (updatedJobs[index] as any).animationState = 'updated';
           this.jobs = updatedJobs;
         }
       },
@@ -150,6 +134,10 @@ export class JobListComponent implements OnInit, OnDestroy {
   }
 
   editJob(job: Job): void {
+    if (job.status === 'PROCESSANDO') {
+      console.warn('Tentativa de editar um job em processamento foi bloqueada.');
+      return;
+    }
     this.openJobForm(job);
   }
 
@@ -165,6 +153,12 @@ export class JobListComponent implements OnInit, OnDestroy {
   }
 
   deleteJob(job: Job): void {
+    // Adiciona uma guarda para não permitir a exclusão se o status for 'PROCESSANDO'
+    if (job.status === 'PROCESSANDO') {
+      console.warn('Tentativa de excluir um job em processamento foi bloqueada.');
+      return;
+    }
+
     this.openDropdownJobId = null;
     if (confirm(`Tem certeza que deseja excluir o job "${job.nome}"?`)) {
       this.isLoading = true;
