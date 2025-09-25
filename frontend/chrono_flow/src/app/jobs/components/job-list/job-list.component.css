@@ -63,7 +63,7 @@
   --dropdown-hover-bg: #424242;
   --dropdown-text-color: #e0e0e0;
   --shadow-color: rgba(255,255,255,0.1);
-  --flow-color: #3391ff; /* Lighter blue for dark mode */
+  --flow-color: #3391ff; 
   --create-btn-bg: #3391ff;
   --create-btn-text: #fff;
   --create-btn-hover-bg: #5ca8ff;
@@ -91,7 +91,7 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
   flex-shrink: 0;
 }
 

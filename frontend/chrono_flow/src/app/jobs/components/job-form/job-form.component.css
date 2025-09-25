@@ -7,6 +7,14 @@
   --btn-secondary-bg: #f1f1f1;
   --btn-secondary-text: #000;
   --btn-secondary-hover-bg: #ddd;
+
+  /* New styles for the host to act as a container */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
 }
 
 :host-context(.dark-mode) {
@@ -21,17 +29,16 @@
 }
 
 .modal-backdrop {
-  position: fixed;
+  position: absolute; /* Changed from fixed */
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 100;
 }
 
 .modal-content {
-  position: fixed;
+  position: absolute; /* Changed from fixed */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -40,7 +47,6 @@
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  z-index: 101;
   width: 90%;
   max-width: 500px;
 }

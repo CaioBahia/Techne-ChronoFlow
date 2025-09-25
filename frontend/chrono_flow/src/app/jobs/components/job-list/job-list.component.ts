@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, NgZone, inject, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Job } from '@shared/models/job.model';
 import { JobService } from '../../services/job.service';
@@ -29,7 +29,7 @@ export class JobListComponent implements OnInit {
 
   themeService = inject(ThemeService);
 
-  constructor(private jobService: JobService, private elementRef: ElementRef) { }
+  constructor(private jobService: JobService, private elementRef: ElementRef, private zone: NgZone) { }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
@@ -48,17 +48,17 @@ export class JobListComponent implements OnInit {
       next: jobs => {
         this.jobs = jobs.map(job => {
           if (job.proximaExecucao && typeof job.proximaExecucao === 'string') {
-            const parts = job.proximaExecucao.split(',').map(part => parseInt(part, 10));
             return {
               ...job,
-              proximaExecucao: new Date(parts[0], parts[1] - 1, parts[2], parts[3], parts[4])
+              proximaExecucao: new Date(job.proximaExecucao)
             };
           }
           return job;
         });
         this.isLoading = false;
       },
-      error: () => {
+      error: (err) => { // Changed to capture the error object
+        console.error('Error loading jobs:', err); // Log the full error
         this.isLoading = false;
         // TODO: Handle error loading jobs
       }
@@ -78,6 +78,7 @@ export class JobListComponent implements OnInit {
   }
 
   closeJobForm(): void {
+    console.log('[TRACE] closeJobForm: Setting showJobForm to false.');
     this.showJobForm = false;
     this.jobToEdit = null;
     this.isLoading = false;
@@ -85,20 +86,34 @@ export class JobListComponent implements OnInit {
   }
 
   saveJob(job: Job): void {
-    if (this.isLoading) return; // Prevent multiple submissions
+    console.log('[TRACE] saveJob: Starting...');
+    if (this.isLoading) {
+      console.log('[TRACE] saveJob: Already loading, exiting.');
+      return;
+    }
     this.isLoading = true;
-    this.saveError = null; // Reset error on new submission
+    this.saveError = null;
 
     this.jobService.saveJob(job).subscribe({
-      next: () => {
-        this.loadJobs(); // Reload the entire list to ensure data is fresh
-        this.closeJobForm();
+      next: (savedJob: Job) => {
+        this.zone.run(() => {
+          console.log('[TRACE] saveJob: Success callback (next) executed.', savedJob);
+          const index = this.jobs.findIndex(j => j.id === savedJob.id);
+          if (index !== -1) {
+            this.jobs[index] = savedJob;
+          } else {
+            this.jobs.unshift(savedJob);
+          }
+          this.isLoading = false;
+          this.closeJobForm();
+        });
       },
       error: (err: HttpErrorResponse) => {
-        console.error('Error saving job:', err);
-        // Extract error message from backend response
-        this.saveError = err.error?.error || 'Ocorreu um erro desconhecido.';
-        this.isLoading = false; // IMPORTANT: Reset saving state on error
+        this.zone.run(() => {
+          console.error('[TRACE] saveJob: Error callback executed.', err);
+          this.saveError = err.error?.error || 'Ocorreu um erro desconhecido.';
+          this.isLoading = false;
+        });
       }
     });
   }
