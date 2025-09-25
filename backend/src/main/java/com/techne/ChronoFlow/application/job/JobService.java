@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +45,16 @@ public class JobService {
     @Transactional
     public Job createJob(Job job) {
         job.setStatus(JobStatus.AGENDADO);
+        job.setUltimaExecucao(null); // Explicitamente nulo na criação
+
+        try {
+            org.quartz.CronExpression cron = new org.quartz.CronExpression(job.getCronExpression());
+            Date proximaData = cron.getNextValidTimeAfter(new Date());
+            job.setProximaExecucao(proximaData.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        } catch (ParseException e) {
+            throw new InvalidCronExpressionException("A expressão cron fornecida '" + job.getCronExpression() + "' é inválida.", e);
+        }
+
         Job savedJob = jobRepository.save(job);
         scheduleJob(savedJob);
         return savedJob;
@@ -64,6 +77,14 @@ public class JobService {
 
         job.setNome(jobDetails.getNome());
         job.setCronExpression(jobDetails.getCronExpression());
+
+        try {
+            org.quartz.CronExpression cron = new org.quartz.CronExpression(job.getCronExpression());
+            Date proximaData = cron.getNextValidTimeAfter(new Date());
+            job.setProximaExecucao(proximaData.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        } catch (ParseException e) {
+            throw new InvalidCronExpressionException("A expressão cron fornecida '" + job.getCronExpression() + "' é inválida.", e);
+        }
 
         Job updatedJob = jobRepository.save(job);
         rescheduleJob(updatedJob);
@@ -136,11 +157,16 @@ public class JobService {
     }
 
     private Trigger buildTrigger(Job job, JobDetail jobDetail) {
-        return TriggerBuilder.newTrigger()
-                .forJob(jobDetail)
-                .withIdentity(String.valueOf(job.getId()))
-                .withDescription("Trigger para " + job.getNome())
-                .withSchedule(CronScheduleBuilder.cronSchedule(job.getCronExpression()))
-                .build();
+        try {
+            return TriggerBuilder.newTrigger()
+                    .forJob(jobDetail)
+                    .withIdentity(String.valueOf(job.getId()))
+                    .withDescription("Trigger para " + job.getNome())
+                    .withSchedule(CronScheduleBuilder.cronSchedule(job.getCronExpression()))
+                    .build();
+        } catch (RuntimeException e) {
+            // This catches the specific parsing exception from CronScheduleBuilder
+            throw new InvalidCronExpressionException("A expressão cron fornecida '" + job.getCronExpression() + "' é inválida.", e);
+        }
     }
 }

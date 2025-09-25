@@ -1,0 +1,27 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Global Variables for Theming */
+:root {
+  --body-bg: #f8f9fa;
+}
+
+.dark-mode {
+  --body-bg: #1a1a1a;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background-color: var(--body-bg);
+  transition: background-color 0.3s;
+}
+
+app-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
