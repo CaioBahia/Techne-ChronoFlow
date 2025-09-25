@@ -1,7 +1,7 @@
 export interface Transacao {
   idTransacao: string;
   valor: number;
-  tipo: 'DEBITO' | 'CREDITO';
+  tipo: 'PAGAMENTO' | 'RECEBIMENTO';
 }
 
 export interface ConteudoArquivoRetorno {
