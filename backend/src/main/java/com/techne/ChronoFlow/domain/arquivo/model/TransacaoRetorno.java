@@ -1,7 +1,11 @@
 package com.techne.ChronoFlow.domain.arquivo.model;
 
+import lombok.Setter;
+
 public class TransacaoRetorno {
+    @Setter
     private String idTransacao;
+    @Setter
     private double valor;
     private String tipo; // Ex: "pagamento", "recebimento"
     // Outros campos relevantes da transação...
@@ -12,16 +16,8 @@ public class TransacaoRetorno {
         return idTransacao;
     }
 
-    public void setIdTransacao(String idTransacao) {
-        this.idTransacao = idTransacao;
-    }
-
     public double getValor() {
         return valor;
-    }
-
-    public void setValor(double valor) {
-        this.valor = valor;
     }
 
     public String getTipo() {
