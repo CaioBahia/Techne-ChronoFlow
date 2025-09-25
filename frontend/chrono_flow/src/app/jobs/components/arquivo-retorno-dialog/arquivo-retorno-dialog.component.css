@@ -39,18 +39,22 @@
 
 .dialog-content.dark-theme .arquivo-list {
   border-color: #555;
+  background-color: #2c2c2c;
+  border: none; /* Remover borda do container */
 }
 
 .dialog-content.dark-theme .arquivo-item {
   border-bottom-color: #555;
+  background-color: #424242; /* Fundo do item no tema escuro */
 }
 
 .dialog-content.dark-theme .arquivo-item:hover {
-  background-color: #555;
+  background-color: #5a5a5a;
 }
 
 .dialog-content.dark-theme .arquivo-item.selected {
-  background-color: #666;
+  background-color: #5a5a5a; /* Cor de seleção mais sutil para o tema escuro */
+  color: #fff; /* Mantém o texto branco para contraste */
 }
 
 .dialog-content.dark-theme .arquivo-details {
@@ -73,29 +77,31 @@
 
 .arquivo-list {
   margin-bottom: 20px;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  /* max-height: 200px; Removed */
+  border: none; /* Remover borda do container */
+  border-radius: 8px; /* Aumentar arredondamento do container */
   overflow-y: auto;
-  flex-grow: 1; /* Added */
+  flex-grow: 1;
+  background-color: #f0f2f5; /* Fundo diferente para a lista no tema claro */
+  padding: 8px; /* Espaçamento interno para os itens */
 }
 
 .arquivo-item {
-  padding: 10px;
+  padding: 12px;
   cursor: pointer;
-  border-bottom: 1px solid #eee;
-}
-
-.arquivo-item:last-child {
-  border-bottom: none;
+  border-radius: 6px; /* Cantos arredondados para cada item */
+  margin-bottom: 8px; /* Espaçamento entre os itens */
+  background-color: #fff; /* Cor de fundo para cada item */
+  transition: background-color 0.2s, color 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .arquivo-item:hover {
-  background-color: #f5f5f5;
+  background-color: #e9ecef;
 }
 
 .arquivo-item.selected {
-  background-color: #e0e0e0;
+  background-color: #dbeafe; /* Azul mais suave para o tema claro */
+  color: #1e40af; /* Texto azul escuro para contraste */
   font-weight: bold;
 }
 
@@ -148,4 +154,35 @@ button {
 
 button:hover {
   background-color: #0056b3;
+}
+
+/* Estilos para a tabela de transações */
+.transacoes-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.transacoes-table th,
+.transacoes-table td {
+  border: 1px solid #ddd;
+  padding: 8px 16px; /* Aumentado o espaçamento horizontal */
+  text-align: left;
+}
+
+.transacoes-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+/* Estilos para o modo escuro */
+.dialog-content.dark-theme .transacoes-table th,
+.dialog-content.dark-theme .transacoes-table td {
+  border-color: #555;
+}
+
+.dialog-content.dark-theme .transacoes-table th {
+  background-color: #4a4a4a;
+  color: #eee;
 }

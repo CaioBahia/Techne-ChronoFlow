@@ -118,3 +118,28 @@ h2 {
 .btn-secondary:hover {
   background-color: var(--btn-secondary-hover-bg);
 }
+
+/* Adicionado para alinhar o input e o botão de ajuda */
+.cron-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cron-input-group input {
+  flex: 1; /* Faz o input ocupar o espaço restante */
+  width: auto; /* Sobrescreve o width: 100% que vinha do .form-group input */
+}
+
+.cron-help-btn {
+  width: 44px;
+  height: 44px;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 0;
+  border-radius: 6px;
+  /* Adicionado para centralizar o '?' */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

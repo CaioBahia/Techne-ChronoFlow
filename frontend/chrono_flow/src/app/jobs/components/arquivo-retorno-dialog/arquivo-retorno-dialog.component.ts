@@ -45,8 +45,4 @@ export class ArquivoRetornoDialogComponent implements OnInit {
   onClose(): void {
     this.close.emit();
   }
-
-  getTotalValor(transacoes: Transacao[]): number {
-    return transacoes.reduce((sum, transacao) => sum + transacao.valor, 0);
-  }
 }

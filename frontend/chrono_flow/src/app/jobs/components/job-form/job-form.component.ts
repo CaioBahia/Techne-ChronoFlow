@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Job } from '@shared/models/job.model';
 import { Empresa, EmpresaMapping } from '@shared/enums/empresa.enum';
 
@@ -18,17 +18,24 @@ export class JobFormComponent implements OnInit {
   @Output() save = new EventEmitter<Job>();
   @Output() close = new EventEmitter<void>();
 
-  jobForm: FormGroup;
+  jobForm: FormGroup<{
+    id: FormControl<number | null>;
+    nome: FormControl<string | null>;
+    cronExpression: FormControl<string | null>;
+    empresa: FormControl<Empresa | '' | null>;
+    status: FormControl<string | null>;
+  }>;
+
   empresaOptions = Object.values(Empresa);
   empresaMapping = EmpresaMapping;
 
   constructor(private fb: FormBuilder) {
     this.jobForm = this.fb.group({
-      id: [null],
-      nome: ['', Validators.required],
-      cronExpression: ['', Validators.required],
-      empresa: ['', Validators.required],
-      status: ['AGENDADO', Validators.required]
+      id: new FormControl<number | null>(null),
+      nome: new FormControl('', Validators.required),
+      cronExpression: new FormControl('', Validators.required),
+      empresa: new FormControl<Empresa | ''>('', Validators.required),
+      status: new FormControl('AGENDADO', Validators.required)
     });
   }
 
@@ -39,8 +46,14 @@ export class JobFormComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.saveError = null; 
     if (this.jobForm.valid) {
-      this.save.emit(this.jobForm.value);
+      const jobToSave: Job = {
+        ...this.job, // Começa com os valores do job original (se houver)
+        ...this.jobForm.getRawValue(), // Sobrescreve com os valores do formulário
+      } as Job;
+
+      this.save.emit(jobToSave);
     }
   }
 

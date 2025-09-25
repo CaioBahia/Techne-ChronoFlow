@@ -22,12 +22,22 @@
 
           <div *ngIf="arquivo.conteudo.transacoes.length > 0">
             <h4>Transações:</h4>
-            <ul>
-              <li *ngFor="let transacao of arquivo.conteudo.transacoes">
-                {{ transacao.idTransacao }} - {{ transacao.valor | currency:'BRL' }} ({{ transacao.tipo }})
-              </li>
-            </ul>
-            <p><strong>Valor Total:</strong> {{ getTotalValor(arquivo.conteudo.transacoes) | currency:'BRL' }}</p>
+            <table class="transacoes-table">
+              <thead>
+                <tr>
+                  <th>ID da Transação</th>
+                  <th>Valor</th>
+                  <th>Tipo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let transacao of arquivo.conteudo.transacoes">
+                  <td>{{ transacao.idTransacao }}</td>
+                  <td>{{ transacao.valor | currency:'BRL' }}</td>
+                  <td>{{ transacao.tipo }}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
           <div *ngIf="arquivo.conteudo.transacoes.length === 0 && !arquivo.conteudo.erro">
             <p>Nenhuma transação encontrada para este arquivo.</p>
