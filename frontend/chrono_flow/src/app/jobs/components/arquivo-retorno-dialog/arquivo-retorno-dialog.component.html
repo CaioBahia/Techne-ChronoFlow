@@ -9,7 +9,6 @@
             <span class="arquivo-name">{{ arquivo.nomeArquivo }}</span>
             <span class="arquivo-status" [ngClass]="arquivo.status.toLowerCase()">{{ arquivo.status | uppercase }}</span>
           </div>
-          <!-- Detalhes para o layout mobile (acordeão) -->
           <div class="arquivo-details-mobile" *ngIf="selectedArquivo === arquivo">
             <div class="arquivo-details-content">
               <p><strong>ID:</strong> {{ arquivo.id }}</p>
@@ -49,7 +48,6 @@
         </ng-container>
       </div>
 
-      <!-- Detalhes para o layout desktop (duas colunas) -->
       <ng-container *ngIf="!isMobile">
         <div class="arquivo-details-desktop" *ngIf="selectedArquivo; else noArquivoSelectedDesktop">
           <ng-container *ngTemplateOutlet="detailsTemplate; context: { $implicit: selectedArquivo }"></ng-container>
@@ -61,7 +59,6 @@
   </div>
 </div>
 
-<!-- Template para os detalhes no desktop -->
 <ng-template #detailsTemplate let-arquivo>
   <h3>Detalhes do Arquivo: {{ arquivo.nomeArquivo }}</h3>
   <p><strong>ID:</strong> {{ arquivo.id }}</p>
@@ -98,7 +95,6 @@
   </div>
 </ng-template>
 
-<!-- Placeholder para quando nenhum arquivo estiver selecionado no desktop -->
 <ng-template #noArquivoSelectedDesktop>
   <div class="arquivo-details-desktop placeholder-container">
     <p class="placeholder-text">Selecione um arquivo para ver os detalhes.</p>

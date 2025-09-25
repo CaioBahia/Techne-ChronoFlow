@@ -29,7 +29,7 @@
   flex-direction: row;
   gap: 20px;
   flex-grow: 1;
-  overflow: hidden; /* Prevent body from overflowing dialog-content */
+  overflow: hidden;
   width: 100%;
 }
 
@@ -113,17 +113,17 @@
 }
 
 .arquivo-item.selected {
-  background-color: #dbeafe; /* Azul mais suave para o tema claro */
-  color: #1e40af; /* Texto azul escuro para contraste */
+  background-color: #dbeafe;
+  color: #1e40af;
   font-weight: bold;
 }
 
 .arquivo-details-mobile {
-  display: block; /* Visível por padrão (mobile-first) */
+  display: block;
 }
 
 .arquivo-details-desktop {
-  display: none; /* Escondido por padrão */
+  display: none;
 }
 
 .arquivo-details-content {
@@ -131,7 +131,7 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   background-color: #f9f9f9;
-  margin: -1px 10px 10px 10px; /* Alinha com o item da lista */
+  margin: -1px 10px 10px 10px;
 }
 
 .arquivo-details-desktop .arquivo-details-content {
@@ -142,7 +142,7 @@
 .arquivo-details h3 {
   margin-top: 0;
   color: #333;
-  word-break: break-word; /* Quebra palavras longas para evitar overflow */
+  word-break: break-word;
 }
 
 .arquivo-details p {
@@ -245,23 +245,23 @@ button:hover {
   }
 
   .arquivo-list-container {
-    flex: 1; /* Changed from flex: 1 1 40% */
+    flex: 1;
     margin-bottom: 0;
   }
 
   .arquivo-details-mobile {
-    display: none; /* Esconde detalhes do acordeão no desktop */
+    display: none;
   }
 
   .arquivo-details-desktop {
-    display: block; /* Mostra o container de detalhes do desktop */
-    flex: 1.5; /* Changed from flex: 1 1 60% to maintain proportion */
+    display: block;
+    flex: 1.5;
     border: 1px solid #ddd;
     border-radius: 4px;
     background-color: #f9f9f9;
     overflow-y: auto;
     height: 100%;
     padding: 15px;
-    box-sizing: border-box; /* Garante que o padding não estoure a altura */
+    box-sizing: border-box;
   }
 }

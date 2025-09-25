@@ -48,10 +48,7 @@ export class JobFormComponent implements OnInit {
   onSubmit(): void {
     this.saveError = null; 
     if (this.jobForm.valid) {
-      const jobToSave: Job = {
-        ...this.job, // Começa com os valores do job original (se houver)
-        ...this.jobForm.getRawValue(), // Sobrescreve com os valores do formulário
-      } as Job;
+      const jobToSave = this.jobForm.getRawValue() as Job;
 
       this.save.emit(jobToSave);
     }

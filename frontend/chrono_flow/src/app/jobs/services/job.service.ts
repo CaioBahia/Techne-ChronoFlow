@@ -2,20 +2,20 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Job } from '@shared/models/job.model';
 import { Empresa } from '@shared/enums/empresa.enum';
-import { HttpClient } from '@angular/common/http'; // Added this import
-import { environment } from '@env/environment'; // Added this import
+import { HttpClient } from '@angular/common/http';
+import { environment } from '@env/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class JobService {
 
-  private apiUrl = environment.apiUrl; // Using API URL from environment
+  private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) { } // Injected HttpClient
+  constructor(private http: HttpClient) { }
 
   getJobs(): Observable<Job[]> {
-    return this.http.get<Job[]>(`${this.apiUrl}/jobs`); // HTTP GET request
+    return this.http.get<Job[]>(`${this.apiUrl}/jobs`);
   }
 
   saveJob(job: Job): Observable<Job> {
@@ -27,6 +27,6 @@ export class JobService {
   }
 
   deleteJob(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/jobs/${id}`); // HTTP DELETE
+    return this.http.delete<void>(`${this.apiUrl}/jobs/${id}`);
   }
 }

@@ -25,7 +25,7 @@ export class JobListComponent implements OnInit {
   showArquivoRetornoDialog = false;
   selectedJobForArquivoRetorno: Job | null = null;
   isLoading = false;
-  saveError: string | null = null; // To hold the error message
+  saveError: string | null = null;
 
   themeService = inject(ThemeService);
 
