@@ -21,9 +21,9 @@ export class JobService {
   saveJob(job: Job): Observable<Job> {
     console.log('Saving job:', job); // Log the job object
     if (job.id) {
-      return this.http.put<Job>(`${this.apiUrl}/jobs/${job.id}`, job); // HTTP PUT for update
+      return this.http.put<Job>(`${this.apiUrl}/jobs/${job.id}`, job);
     } else {
-      return this.http.post<Job>(`${this.apiUrl}/jobs`, job); // HTTP POST for create
+      return this.http.post<Job>(`${this.apiUrl}/jobs`, job);
     }
   }
 
