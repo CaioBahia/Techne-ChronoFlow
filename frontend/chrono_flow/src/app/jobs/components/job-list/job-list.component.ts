@@ -1,12 +1,14 @@
-import { Component, OnInit, NgZone, inject, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, inject, HostListener, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Job } from '@shared/models/job.model';
+import { Job, JobStatusUpdate } from '@shared/models/job.model';
 import { JobService } from '../../services/job.service';
 import { JobFormComponent } from '../job-form/job-form.component';
 import { JobDetailsComponent } from '../job-details/job-details.component';
 import { ThemeService } from '@core/theme.service';
 import { ArquivoRetornoDialogComponent } from '../arquivo-retorno-dialog/arquivo-retorno-dialog.component';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Subscription } from 'rxjs';
+import { SseService } from '../../services/sse.service';
 
 @Component({
   selector: 'app-job-list',
@@ -15,7 +17,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './job-list.component.html',
   styleUrls: ['./job-list.component.css']
 })
-export class JobListComponent implements OnInit {
+export class JobListComponent implements OnInit, OnDestroy {
   jobs: Job[] = [];
   showJobForm = false;
   jobToEdit: Job | null = null;
@@ -26,10 +28,11 @@ export class JobListComponent implements OnInit {
   selectedJobForArquivoRetorno: Job | null = null;
   isLoading = false;
   saveError: string | null = null;
+  private sseSubscription: Subscription | undefined;
 
   themeService = inject(ThemeService);
 
-  constructor(private jobService: JobService, private elementRef: ElementRef, private zone: NgZone) { }
+  constructor(private jobService: JobService, private sseService: SseService, private elementRef: ElementRef) { }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
@@ -40,27 +43,42 @@ export class JobListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadJobs();
+    this.subscribeToJobUpdates();
+  }
+
+  ngOnDestroy(): void {
+    if (this.sseSubscription) {
+      this.sseSubscription.unsubscribe();
+    }
   }
 
   loadJobs(): void {
-    this.isLoading = true;
+    this.isLoading = true;  
     this.jobService.getJobs().subscribe({
       next: jobs => {
-        this.jobs = jobs.map(job => {
-          if (job.proximaExecucao && typeof job.proximaExecucao === 'string') {
-            return {
-              ...job,
-              proximaExecucao: new Date(job.proximaExecucao)
-            };
-          }
-          return job;
-        });
+        this.jobs = jobs;
         this.isLoading = false;
       },
       error: (err) => {
         console.error('Error loading jobs:', err);
         this.isLoading = false;
       }
+    });
+  }
+
+  private subscribeToJobUpdates(): void {
+    this.sseSubscription = this.sseService.getJobUpdates().subscribe({
+      next: (update: JobStatusUpdate) => {
+        const index = this.jobs.findIndex(j => j.id === update.id);
+        console.log('SSE: Job update received', update);
+        if (index !== -1) {
+          // Cria um novo array para garantir a detecção de mudanças do Angular
+          const updatedJobs = [...this.jobs];
+          updatedJobs[index] = { ...this.jobs[index], ...update };
+          this.jobs = updatedJobs;
+        }
+      },
+      error: (err) => console.error('Error subscribing to job updates:', err)
     });
   }
 
@@ -88,22 +106,20 @@ export class JobListComponent implements OnInit {
 
     this.jobService.saveJob(job).subscribe({
       next: (savedJob: Job) => {
-        this.zone.run(() => {
-          const index = this.jobs.findIndex(j => j.id === savedJob.id);
-          if (index !== -1) {
-            this.jobs[index] = savedJob;
-          } else {
-            this.jobs.unshift(savedJob);
-          }
-          this.isLoading = false;
-          this.closeJobForm();
-        });
+        const index = this.jobs.findIndex(j => j.id === savedJob.id);
+        if (index !== -1) {
+          // Atualiza o job existente
+          this.jobs[index] = savedJob;
+        } else {
+          // Adiciona um novo job no início da lista
+          this.jobs.unshift(savedJob);
+        }
+        this.isLoading = false;
+        this.closeJobForm();
       },
       error: (err: HttpErrorResponse) => {
-        this.zone.run(() => {
-          this.saveError = err.error?.error || 'Ocorreu um erro desconhecido.';
-          this.isLoading = false;
-        });
+        this.saveError = err.error?.error || 'Ocorreu um erro desconhecido.';
+        this.isLoading = false;
       }
     });
   }
@@ -129,7 +145,9 @@ export class JobListComponent implements OnInit {
       this.isLoading = true;
       this.jobService.deleteJob(job.id).subscribe({
         next: () => {
-          this.loadJobs();
+          // Remove o job da lista local em vez de recarregar tudo
+          this.jobs = this.jobs.filter(j => j.id !== job.id);
+          this.isLoading = false;
         },
         error: (err) => {
           console.error('Error deleting job:', err);

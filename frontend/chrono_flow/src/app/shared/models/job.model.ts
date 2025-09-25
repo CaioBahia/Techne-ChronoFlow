@@ -4,8 +4,15 @@ export interface Job {
   id: number;
   nome: string;
   cronExpression: string;
-  status: 'AGENDADO' | 'EXECUTANDO' | 'CONCLUIDO' | 'FALHA';
-  ultimaExecucao: Date | string | null;
-  proximaExecucao: Date | string | null;
   empresa: Empresa;
+  status: string;
+  ultimaExecucao: string | null;
+  proximaExecucao: string | null;
+}
+
+export interface JobStatusUpdate {
+  id: number;
+  status: string;
+  proximaExecucao: string | null;
+  ultimaExecucao: string | null;
 }

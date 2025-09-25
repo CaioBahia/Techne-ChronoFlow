@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Job } from '@shared/models/job.model';
@@ -11,7 +11,7 @@ import { Empresa, EmpresaMapping } from '@shared/enums/empresa.enum';
   templateUrl: './job-form.component.html',
   styleUrls: ['./job-form.component.css']
 })
-export class JobFormComponent implements OnInit {
+export class JobFormComponent implements OnChanges {
   @Input() job: Job | null = null;
   @Input() isLoading: boolean = false;
   @Input() saveError: string | null = null;
@@ -39,9 +39,15 @@ export class JobFormComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    if (this.job) {
-      this.jobForm.patchValue(this.job);
+  ngOnChanges(changes: SimpleChanges): void {
+    // Se a propriedade 'job' mudar
+    if (changes['job']) {
+      // Reseta o formulário para o estado inicial
+      this.jobForm.reset({ status: 'AGENDADO' });
+      // Se um novo 'job' foi passado (modo de edição), preenche o formulário
+      if (this.job) {
+        this.jobForm.patchValue(this.job);
+      }
     }
   }
 
